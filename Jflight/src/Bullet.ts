@@ -1,7 +1,7 @@
 ///<reference path="./Math/CVector3.ts" />
 
 //
-// Bullet
+// bullet
 // íeä€ÉNÉâÉX
 //
 
@@ -24,7 +24,7 @@ class Bullet extends PhysicsState {
 
     public constructor(scene: THREE.Scene) {
         super();
-        var geometry = new THREE.SphereGeometry(5, 8, 8);
+        var geometry: THREE.SphereGeometry = new THREE.SphereGeometry(5, 8, 8);
         var material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
         this.sphere = new THREE.Mesh(geometry, material);
         this.sphere.visible = false;

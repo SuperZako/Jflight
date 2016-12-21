@@ -294,9 +294,9 @@ class Jflight extends Applet3D {
                         let p2 = Jflight.obj[j][2].clone();
                         p2.applyMatrix4(m);
 
-                        p0.add(<any>this.plane[i].position);
-                        p1.add(<any>this.plane[i].position);
-                        p2.add(<any>this.plane[i].position);
+                        p0.add(this.plane[i].position);
+                        p1.add(this.plane[i].position);
+                        p2.add(this.plane[i].position);
 
                         // ワールド座標を、スクリーン座標に変換
                         this.change3d(this.plane[0], <any>p0, s0);
@@ -383,9 +383,9 @@ class Jflight extends Applet3D {
                 // ミサイルの煙を表示
                 // 煙の座標はリングバッファに格納されている
                 let k = (ap.use + Missile.MOMAX + 1) % Missile.MOMAX;
-                this.change3d(this.plane[0], ap.oldPositions[k], dm);
+                this.change3d(this.plane[0], <any>ap.oldPositions[k], dm);
                 for (let m = 0; m < ap.count; m++) {
-                    this.change3d(this.plane[0], ap.oldPositions[k], cp);
+                    this.change3d(this.plane[0], <any>ap.oldPositions[k], cp);
                     this.drawMline(context, dm, cp);
                     k = (k + Missile.MOMAX + 1) % Missile.MOMAX;
                     dm.set(cp.x, cp.y, cp.z);

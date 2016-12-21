@@ -15,8 +15,6 @@ class Wing extends PhysicsState {
     //     -------->X
 
     // 変数
-    // public pVel: CVector3;    // 翼中心位置（機体座標）
-
     public unitX = new THREE.Vector3();   // 翼座標Ｘ単位ベクトル（機体座標）
     public yVel = new THREE.Vector3();   // 翼座標Ｙ単位ベクトル（機体座標）
     public zVel = new THREE.Vector3();   // 翼座標Ｚ単位ベクトル（機体座標）
@@ -30,66 +28,45 @@ class Wing extends PhysicsState {
 
     public tVal: number;      // エンジンの推力（0で通常の翼）
 
-    // テンポラリオブジェクト
-    // protected m_op: CVector3;
-    // protected m_ti: CVector3;
-    // protected m_ni: CVector3;
-    // protected m_vp: CVector3;
-    // protected m_vp2: CVector3;
-
-    // protected m_wx: CVector3;
-    // protected m_wy: CVector3;
-    protected m_wz: CVector3;
-
-    protected m_qx: CVector3;
-    protected m_qy: CVector3;
-    protected m_qz: CVector3;
-
     // コンストラクタ
-
     public constructor() {
         super();
-
-        // this.m_ti = new CVector3();
-        // this.m_ni = new CVector3();
-        // this.m_vp = new CVector3();
-        // this.m_vp2 = new CVector3();
-        // this.m_wx = new CVector3();
-        // this.m_wy = new CVector3();
-        this.m_wz = new CVector3();
-        this.m_qx = new CVector3();
-        this.m_qy = new CVector3();
-        this.m_qz = new CVector3();
     }
 
     // 翼計算を行う
     // fVelに計算結果が求まる
     // veは空気密度、noは翼No.（迎角計算に使用）、boostはエンジンブースト
-
     public calc(plane: Plane, ve: number, no: number, boost: boolean) {
-        let cl, cd, ff;
+        let cd, ff;
 
         // 機体の速度と回転率、翼の位置から翼における速度を求める（外積計算）
         let vp = new THREE.Vector3();
-        vp.x = plane.localVelocity.x + this.position.y * plane.vaVel.z - this.position.z * plane.vaVel.y;
-        vp.y = plane.localVelocity.y + this.position.z * plane.vaVel.x - this.position.x * plane.vaVel.z;
-        vp.z = plane.localVelocity.z + this.position.x * plane.vaVel.y - this.position.y * plane.vaVel.x;
-
+        // vp.x = plane.localVelocity.x + this.position.y * plane.vaVel.z - this.position.z * plane.vaVel.y;
+        // vp.y = plane.localVelocity.y + this.position.z * plane.vaVel.x - this.position.x * plane.vaVel.z;
+        // vp.z = plane.localVelocity.z + this.position.x * plane.vaVel.y - this.position.y * plane.vaVel.x;
+        vp.crossVectors(this.position, plane.vaVel);
+        vp.add(plane.localVelocity);
 
         // 翼のひねりを基に、基本座標ベクトルを回転
 
         let sin = Math.sin(this.bAngle);
         let cos = Math.cos(this.bAngle);
 
-        this.m_qx.x = this.unitX.x * cos - this.zVel.x * sin;
-        this.m_qx.y = this.unitX.y * cos - this.zVel.y * sin;
-        this.m_qx.z = this.unitX.z * cos - this.zVel.z * sin;
+        let qx = new THREE.Vector3();
+        // qx.x = this.unitX.x * cos - this.zVel.x * sin;
+        // qx.y = this.unitX.y * cos - this.zVel.y * sin;
+        // qx.z = this.unitX.z * cos - this.zVel.z * sin;
+        qx.addScaledVector(this.unitX, cos);
+        qx.addScaledVector(this.zVel, -sin);
 
-        this.m_qy.set(this.yVel.x, this.yVel.y, this.yVel.z);
+        let qy = new THREE.Vector3();
+        //this.m_qy.set(this.yVel.x, this.yVel.y, this.yVel.z);
+        qy.copy(this.yVel);
 
-        this.m_qz.x = this.unitX.x * sin + this.zVel.x * cos;
-        this.m_qz.y = this.unitX.y * sin + this.zVel.y * cos;
-        this.m_qz.z = this.unitX.z * sin + this.zVel.z * cos;
+        let qz = new THREE.Vector3();
+        qz.x = this.unitX.x * sin + this.zVel.x * cos;
+        qz.y = this.unitX.y * sin + this.zVel.y * cos;
+        qz.z = this.unitX.z * sin + this.zVel.z * cos;
 
         sin = Math.sin(this.aAngle);
         cos = Math.cos(this.aAngle);
@@ -97,16 +74,17 @@ class Wing extends PhysicsState {
 
         // this.m_wx.set(this.m_qx.x, this.m_qx.y, this.m_qx.z);
         let wx = new THREE.Vector3();
-        wx.copy(<any>this.m_qx);
+        wx.copy(qx);
 
         let wy = new THREE.Vector3();
-        wy.x = this.m_qy.x * cos - this.m_qz.x * sin;
-        wy.y = this.m_qy.y * cos - this.m_qz.y * sin;
-        wy.z = this.m_qy.z * cos - this.m_qz.z * sin;
+        wy.x = qy.x * cos - qz.x * sin;
+        wy.y = qy.y * cos - qz.y * sin;
+        wy.z = qy.z * cos - qz.z * sin;
 
-        this.m_wz.x = this.m_qy.x * sin + this.m_qz.x * cos;
-        this.m_wz.y = this.m_qy.y * sin + this.m_qz.y * cos;
-        this.m_wz.z = this.m_qy.z * sin + this.m_qz.z * cos;
+        let wz = new THREE.Vector3();
+        wz.x = qy.x * sin + qz.x * cos;
+        wz.y = qy.y * sin + qz.y * cos;
+        wz.z = qy.z * sin + qz.z * cos;
 
         let t0 = 0;
 
@@ -131,8 +109,9 @@ class Wing extends PhysicsState {
 
             // let dx = wx.x * vp.x + wx.y * vp.y + wx.z * vp.z;
             let dx = wx.dot(vp);
-            let dy = wy.x * vp.x + wy.y * vp.y + wy.z * vp.z;
-            let dz = this.m_wz.x * vp.x + this.m_wz.y * vp.y + this.m_wz.z * vp.z;
+            // let dy = wy.x * vp.x + wy.y * vp.y + wy.z * vp.z;
+            let dy = wy.dot(vp);
+            let dz = wz.x * vp.x + wz.y * vp.y + wz.z * vp.z;
 
             // 揚力方向の速度成分を求める
 
@@ -151,9 +130,9 @@ class Wing extends PhysicsState {
             }
 
             let ni = new THREE.Vector3();
-            ni.x = this.m_wz.x * rr - vp2.x * dz;
-            ni.y = this.m_wz.y * rr - vp2.y * dz;
-            ni.z = this.m_wz.z * rr - vp2.z * dz;
+            ni.x = wz.x * rr - vp2.x * dz;
+            ni.y = wz.y * rr - vp2.y * dz;
+            ni.z = wz.z * rr - vp2.z * dz;
 
             // vv = this.m_ni.abs();
             // this.m_ni.consInv(vv);
@@ -168,6 +147,7 @@ class Wing extends PhysicsState {
                 plane.aoa = at;
             }
 
+            let cl = 0;
             if (Math.abs(at) < 0.4) {
                 //  揚力係数と抗力係数を迎角から求める
                 cl = at * 4;

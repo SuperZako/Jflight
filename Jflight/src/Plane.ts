@@ -122,9 +122,9 @@ class Plane extends PhysicsState {
         var geometry = new THREE.Geometry();
 
         for (let vertices of Jflight.obj) {
-            geometry.vertices.push(new THREE.Vector3(vertices[0].x, vertices[0].y, vertices[0].z));
-            geometry.vertices.push(new THREE.Vector3(vertices[1].x, vertices[1].y, vertices[1].z));
-            geometry.vertices.push(new THREE.Vector3(vertices[2].x, vertices[2].y, vertices[2].z));
+            geometry.vertices.push(vertices[0].clone());
+            geometry.vertices.push(vertices[1].clone());
+            geometry.vertices.push(vertices[2].clone());
         }
 
         this.line = new THREE.Line(geometry, material);
@@ -514,10 +514,10 @@ class Plane extends PhysicsState {
         // af→機体にかかる力
         // am→機体にかかるモーメント
 
-        let af = new CVector3();
-        let am = new CVector3();
-        af.set(0, 0, 0);
-        am.set(0, 0, 0);
+        let af = new THREE.Vector3();//new CVector3();
+        let am = new THREE.Vector3();//new CVector3();
+        // af.set(0, 0, 0);
+        // am.set(0, 0, 0);
 
         // 各翼に働く力とモーメントを計算
 
@@ -541,8 +541,8 @@ class Plane extends PhysicsState {
 
             // v = position × velocity
             // am -= v;
-            v.crossVectors(<any>wing.position, <any>wing.fVel);
-            am.sub(<any>v);
+            v.crossVectors(wing.position, wing.fVel);
+            am.sub(v);
         }
 
 
@@ -554,6 +554,7 @@ class Plane extends PhysicsState {
         this.vaVel.x += am.x / this.iMass.x * Jflight.DT;
         this.vaVel.y += am.y / this.iMass.y * Jflight.DT;
         this.vaVel.z += am.z / this.iMass.z * Jflight.DT;
+
 
         //let rotX = (this.vaVel.x * this.cosb + this.vaVel.z * this.sinb) * Jflight.DT;
         //let rotY = (this.vaVel.y + (this.vaVel.x * this.sinb - this.vaVel.z * this.cosb) * this.sina / this.cosa) * Jflight.DT;
@@ -592,17 +593,19 @@ class Plane extends PhysicsState {
         // 加速度を決定
 
         // this.gVel.setConsInv(af, this.mass);
-        this.gVel.copy(<any>af);
+        this.gVel.copy(af);
         this.gVel.multiplyScalar(1 / this.mass);
 
         // 機体で発生する抵抗を擬似的に生成
 
-        let _v = new CVector3()
-        _v.set(this.velocity.x, this.velocity.y, this.velocity.z);
-        let len = _v.abs();
-        _v.x /= len;
-        _v.y /= len;
-        _v.z /= len;
+        let _v = new THREE.Vector3();//new CVector3()
+        // _v.set(this.velocity.x, this.velocity.y, this.velocity.z);
+        // let len = _v.abs();
+        // _v.x /= len;
+        // _v.y /= len;
+        // _v.z /= len;
+        _v.copy(this.velocity);
+        _v.normalize();
 
         this.velocity.x -= this.velocity.x * this.velocity.x * 0.00002 * _v.x;
         this.velocity.y -= this.velocity.y * this.velocity.y * 0.00002 * _v.y;
@@ -631,10 +634,10 @@ class Plane extends PhysicsState {
         // 機体の位置を積分して求める
 
         // this.velocity.addCons(this.gVel, Jflight.DT);
-        this.velocity.addScaledVector(<any>this.gVel, Jflight.DT);
+        this.velocity.addScaledVector(this.gVel, Jflight.DT);
 
         // this.position.addCons(this.velocity, Jflight.DT);
-        this.position.addScaledVector(<any>this.velocity, Jflight.DT);
+        this.position.addScaledVector(this.velocity, Jflight.DT);
 
         // 念のため、地面にめり込んだかどうかチェック
         if (this.height < 2) {
@@ -963,7 +966,9 @@ class Plane extends PhysicsState {
                 dm.z += (k / 4) * 5;
                 this.change_l2w(dm, oi);
                 let v = oi.abs();
-                ap.forward.setConsInv(oi, v);
+                // ap.forward.setConsInv(oi, v);
+                ap.forward.copy(<any>oi);
+                ap.forward.divideScalar(v);
 
                 // 各種初期化
 

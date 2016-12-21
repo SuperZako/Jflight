@@ -503,55 +503,53 @@ var Wing = (function (_super) {
         //     |/
         //     -------->X
         // �ϐ�
-        // public pVel: CVector3;    // �����S�ʒu�i�@�̍��W�j
         _this.unitX = new THREE.Vector3(); // �����W�w�P�ʃx�N�g���i�@�̍��W�j
         _this.yVel = new THREE.Vector3(); // �����W�x�P�ʃx�N�g���i�@�̍��W�j
         _this.zVel = new THREE.Vector3(); // �����W�y�P�ʃx�N�g���i�@�̍��W�j
         _this.fVel = new THREE.Vector3(); // ���ɂ������Ă����
-        // this.m_ti = new CVector3();
-        // this.m_ni = new CVector3();
-        // this.m_vp = new CVector3();
-        // this.m_vp2 = new CVector3();
-        // this.m_wx = new CVector3();
-        // this.m_wy = new CVector3();
-        _this.m_wz = new CVector3();
-        _this.m_qx = new CVector3();
-        _this.m_qy = new CVector3();
-        _this.m_qz = new CVector3();
         return _this;
     }
     // ���v�Z��s��
     // fVel�Ɍv�Z���ʂ����܂�
     // ve�͋�C���x�Ano�͗�No.�i�}�p�v�Z�Ɏg�p�j�Aboost�̓G���W���u�[�X�g
     Wing.prototype.calc = function (plane, ve, no, boost) {
-        var cl, cd, ff;
+        var cd, ff;
         // �@�̂̑��x�Ɖ�]���A���̈ʒu���痃�ɂ����鑬�x����߂�i�O�όv�Z�j
         var vp = new THREE.Vector3();
-        vp.x = plane.localVelocity.x + this.position.y * plane.vaVel.z - this.position.z * plane.vaVel.y;
-        vp.y = plane.localVelocity.y + this.position.z * plane.vaVel.x - this.position.x * plane.vaVel.z;
-        vp.z = plane.localVelocity.z + this.position.x * plane.vaVel.y - this.position.y * plane.vaVel.x;
+        // vp.x = plane.localVelocity.x + this.position.y * plane.vaVel.z - this.position.z * plane.vaVel.y;
+        // vp.y = plane.localVelocity.y + this.position.z * plane.vaVel.x - this.position.x * plane.vaVel.z;
+        // vp.z = plane.localVelocity.z + this.position.x * plane.vaVel.y - this.position.y * plane.vaVel.x;
+        vp.crossVectors(this.position, plane.vaVel);
+        vp.add(plane.localVelocity);
         // ���̂Ђ˂���ɁA��{���W�x�N�g�����]
         var sin = Math.sin(this.bAngle);
         var cos = Math.cos(this.bAngle);
-        this.m_qx.x = this.unitX.x * cos - this.zVel.x * sin;
-        this.m_qx.y = this.unitX.y * cos - this.zVel.y * sin;
-        this.m_qx.z = this.unitX.z * cos - this.zVel.z * sin;
-        this.m_qy.set(this.yVel.x, this.yVel.y, this.yVel.z);
-        this.m_qz.x = this.unitX.x * sin + this.zVel.x * cos;
-        this.m_qz.y = this.unitX.y * sin + this.zVel.y * cos;
-        this.m_qz.z = this.unitX.z * sin + this.zVel.z * cos;
+        var qx = new THREE.Vector3();
+        // qx.x = this.unitX.x * cos - this.zVel.x * sin;
+        // qx.y = this.unitX.y * cos - this.zVel.y * sin;
+        // qx.z = this.unitX.z * cos - this.zVel.z * sin;
+        qx.addScaledVector(this.unitX, cos);
+        qx.addScaledVector(this.zVel, -sin);
+        var qy = new THREE.Vector3();
+        //this.m_qy.set(this.yVel.x, this.yVel.y, this.yVel.z);
+        qy.copy(this.yVel);
+        var qz = new THREE.Vector3();
+        qz.x = this.unitX.x * sin + this.zVel.x * cos;
+        qz.y = this.unitX.y * sin + this.zVel.y * cos;
+        qz.z = this.unitX.z * sin + this.zVel.z * cos;
         sin = Math.sin(this.aAngle);
         cos = Math.cos(this.aAngle);
         // this.m_wx.set(this.m_qx.x, this.m_qx.y, this.m_qx.z);
         var wx = new THREE.Vector3();
-        wx.copy(this.m_qx);
+        wx.copy(qx);
         var wy = new THREE.Vector3();
-        wy.x = this.m_qy.x * cos - this.m_qz.x * sin;
-        wy.y = this.m_qy.y * cos - this.m_qz.y * sin;
-        wy.z = this.m_qy.z * cos - this.m_qz.z * sin;
-        this.m_wz.x = this.m_qy.x * sin + this.m_qz.x * cos;
-        this.m_wz.y = this.m_qy.y * sin + this.m_qz.y * cos;
-        this.m_wz.z = this.m_qy.z * sin + this.m_qz.z * cos;
+        wy.x = qy.x * cos - qz.x * sin;
+        wy.y = qy.y * cos - qz.y * sin;
+        wy.z = qy.z * cos - qz.z * sin;
+        var wz = new THREE.Vector3();
+        wz.x = qy.x * sin + qz.x * cos;
+        wz.y = qy.y * sin + qz.y * cos;
+        wz.z = qy.z * sin + qz.z * cos;
         var t0 = 0;
         this.fVel.set(0, 0, 0);
         if (this.sVal > 0) {
@@ -567,8 +565,9 @@ var Wing = (function (_super) {
             // �@�̍��W�̗����x�𗃍��W�n�ɕϊ�
             // let dx = wx.x * vp.x + wx.y * vp.y + wx.z * vp.z;
             var dx = wx.dot(vp);
-            var dy = wy.x * vp.x + wy.y * vp.y + wy.z * vp.z;
-            var dz = this.m_wz.x * vp.x + this.m_wz.y * vp.y + this.m_wz.z * vp.z;
+            // let dy = wy.x * vp.x + wy.y * vp.y + wy.z * vp.z;
+            var dy = wy.dot(vp);
+            var dz = wz.x * vp.x + wz.y * vp.y + wz.z * vp.z;
             // �g�͕����̑��x��������߂�
             var rr = Math.sqrt(dx * dx + dy * dy);
             var vp2 = new THREE.Vector3();
@@ -583,9 +582,9 @@ var Wing = (function (_super) {
                 vp2.z = wx.z * dx + wy.z * dy;
             }
             var ni = new THREE.Vector3();
-            ni.x = this.m_wz.x * rr - vp2.x * dz;
-            ni.y = this.m_wz.y * rr - vp2.y * dz;
-            ni.z = this.m_wz.z * rr - vp2.z * dz;
+            ni.x = wz.x * rr - vp2.x * dz;
+            ni.y = wz.y * rr - vp2.y * dz;
+            ni.z = wz.z * rr - vp2.z * dz;
             // vv = this.m_ni.abs();
             // this.m_ni.consInv(vv);
             var vv = ni.length();
@@ -595,6 +594,7 @@ var Wing = (function (_super) {
             if (no === 0) {
                 plane.aoa = at;
             }
+            var cl = 0;
             if (Math.abs(at) < 0.4) {
                 //  �g�͌W���ƍR�͌W����}�p���狁�߂�
                 cl = at * 4;
@@ -635,7 +635,7 @@ var Wing = (function (_super) {
 }(PhysicsState));
 ///<reference path="./Math/CVector3.ts" />
 //
-// Bullet
+// bullet
 // �e�ۃN���X
 //
 var Bullet = (function (_super) {
@@ -750,18 +750,16 @@ var Missile = (function (_super) {
     function Missile(scene) {
         var _this = _super.call(this) || this;
         // �ϐ�
-        // public pVel = new CVector3();       // �ʒu
-        // public vpVel = new CVector3();      // ���x
         _this.oldPositions = []; // �̂̈ʒu�i���̈ʒu�j
-        _this.forward = new CVector3(); // �����i�P�ʃx�N�g���j
+        _this.forward = new THREE.Vector3(); // �����i�P�ʃx�N�g���j
         _this.use = 0; // �g�p��ԁi0�Ŗ��g�p�j
         _this.bom = 0; // ������ԁi0�Ŗ����j
         _this.bomm = 0; // �j���ԁi0�Ŗ����j
         _this.spheres = [];
         for (var i = 0; i < Missile.MOMAX; i++) {
-            _this.oldPositions.push(new CVector3());
+            _this.oldPositions.push(new THREE.Vector3());
         }
-        _this.m_a0 = new CVector3();
+        // this.m_a0 = new CVector3();
         var geometries = [];
         for (var i = 0; i < Missile.MOMAX; ++i) {
             geometries.push(new THREE.SphereGeometry(5, 8, 8));
@@ -796,14 +794,19 @@ var Missile = (function (_super) {
             // �ǔ��ڕW
             var tp = world.plane[this.targetNo];
             // �ǔ��ڕW�Ƃ̋�������߂�
-            this.m_a0.setMinus(tp.position, this.position);
-            var l = this.m_a0.abs();
+            // this.m_a0.setMinus(<any>tp.position, <any>this.position);
+            var a0 = new THREE.Vector3();
+            a0.subVectors(tp.position, this.position);
+            // let l = this.m_a0.abs();
+            var l = a0.length();
             if (l < 0.001) {
                 l = 0.001;
             }
             // �ǔ��ڕW�Ƃ̑��x������߂�
-            this.m_a0.setMinus(tp.velocity, this.velocity);
-            var m = this.m_a0.abs();
+            // this.m_a0.setMinus(<any>tp.velocity, <any>this.velocity);
+            a0.subVectors(tp.velocity, this.velocity);
+            //let m = this.m_a0.abs();
+            var m = a0.length();
             // �Փ˗\�z���Ԃ�C������ŋ��߂�
             var t0 = l / v * (1.0 - m / (800 + 1));
             // �Փ˗\�z���Ԃ�O����T�Ɋۂ߂�
@@ -814,24 +817,28 @@ var Missile = (function (_super) {
                 t0 = 5;
             }
             // �Փ˗\�z���Ԏ��̃^�[�Q�b�g�̈ʒu�Ǝ����̈ʒu�̍�����߂�
-            this.m_a0.x = tp.position.x + tp.velocity.x * t0 - (this.position.x + this.velocity.x * t0);
-            this.m_a0.y = tp.position.y + tp.velocity.y * t0 - (this.position.y + this.velocity.y * t0);
-            this.m_a0.z = tp.position.z + tp.velocity.z * t0 - (this.position.z + this.velocity.z * t0);
+            a0.x = tp.position.x + tp.velocity.x * t0 - (this.position.x + this.velocity.x * t0);
+            a0.y = tp.position.y + tp.velocity.y * t0 - (this.position.y + this.velocity.y * t0);
+            a0.z = tp.position.z + tp.velocity.z * t0 - (this.position.z + this.velocity.z * t0);
             var tr = ((100 - 15) - this.use) * 0.02 + 0.5;
             if (tr > 0.1) {
                 tr = 0.1;
             }
             if (tr < 1) {
                 // ���˒���́A�h��ȋ@������Ȃ�
-                l = this.m_a0.abs();
-                this.forward.addCons(this.m_a0, l * tr * 10);
+                // l = this.m_a0.abs();
+                l = a0.length();
+                // this.forward.addCons(this.m_a0, l * tr * 10);
+                this.forward.addScaledVector(a0, l * tr * 10);
             }
             else {
                 // �����łȂ��ꍇ�A�ǔ������փ~�T�C���@��������
-                this.forward.set(this.m_a0.x, this.m_a0.y, this.m_a0.z);
+                //this.forward.set(this.m_a0.x, this.m_a0.y, this.m_a0.z);
+                this.forward.copy(a0);
             }
             // ������P�ʃx�N�g���ɕ␳
-            this.forward.consInv(this.forward.abs());
+            //this.forward.consInv(this.forward.abs());
+            this.forward.normalize();
         }
     };
     // �~�T�C�����[�^�[�v�Z
@@ -870,7 +877,8 @@ var Missile = (function (_super) {
         // �~�T�C�����[�^�[�v�Z
         this.calcMotor(world, plane);
         // �����O�o�b�t�@�Ɉʒu��ۑ�
-        this.oldPositions[this.use % Missile.MOMAX].set(this.position.x, this.position.y, this.position.z);
+        // this.oldPositions[this.use % Missile.MOMAX].set(this.position.x, this.position.y, this.position.z);
+        this.oldPositions[this.use % Missile.MOMAX].copy(this.position);
         // �~�T�C���ړ�
         // this.position.addCons(this.velocity, Jflight.DT);
         this.position.addScaledVector(this.velocity, Jflight.DT);
@@ -881,8 +889,11 @@ var Missile = (function (_super) {
             // �ǔ��ڕW
             var tp = world.plane[this.targetNo];
             // �^�[�Q�b�g�Ƃ̋�������߂āA������x�ȉ��Ȃ瓖����i�ڐG�M�ǂ̂ݎg�p�j
-            this.m_a0.setMinus(this.position, tp.position);
-            if (this.m_a0.abs() < 10) {
+            //this.m_a0.setMinus(<any>this.position, <any>tp.position);
+            var a0 = new THREE.Vector3();
+            a0.subVectors(this.position, tp.position);
+            //if (this.m_a0.abs() < 10) {
+            if (a0.length() < 10) {
                 this.bom = 10;
             }
         }
@@ -910,9 +921,10 @@ var Missile = (function (_super) {
         // �~�T�C�����������̏ꍇ�A���~�\��
         this.explosion.visible = false;
         if (this.bom > 0) {
-            this.explosion.position.x = this.position.x;
-            this.explosion.position.y = this.position.y;
-            this.explosion.position.z = this.position.z;
+            //this.explosion.position.x = this.position.x;
+            //this.explosion.position.y = this.position.y;
+            //this.explosion.position.z = this.position.z;
+            this.explosion.position.copy(this.position);
             this.explosion.visible = true;
         }
         // �n�ʂƂ̓����蔻��
@@ -980,9 +992,9 @@ var Plane = (function (_super) {
         var geometry = new THREE.Geometry();
         for (var _i = 0, _a = Jflight.obj; _i < _a.length; _i++) {
             var vertices = _a[_i];
-            geometry.vertices.push(new THREE.Vector3(vertices[0].x, vertices[0].y, vertices[0].z));
-            geometry.vertices.push(new THREE.Vector3(vertices[1].x, vertices[1].y, vertices[1].z));
-            geometry.vertices.push(new THREE.Vector3(vertices[2].x, vertices[2].y, vertices[2].z));
+            geometry.vertices.push(vertices[0].clone());
+            geometry.vertices.push(vertices[1].clone());
+            geometry.vertices.push(vertices[2].clone());
         }
         _this.line = new THREE.Line(geometry, material);
         scene.add(_this.line);
@@ -1287,10 +1299,10 @@ var Plane = (function (_super) {
         }
         // af���@�̂ɂ������
         // am���@�̂ɂ����郂�[�����g
-        var af = new CVector3();
-        var am = new CVector3();
-        af.set(0, 0, 0);
-        am.set(0, 0, 0);
+        var af = new THREE.Vector3(); //new CVector3();
+        var am = new THREE.Vector3(); //new CVector3();
+        // af.set(0, 0, 0);
+        // am.set(0, 0, 0);
         // �e���ɓ����͂ƃ��[�����g��v�Z
         this.aoa = 0;
         var i = 0;
@@ -1353,12 +1365,14 @@ var Plane = (function (_super) {
         this.gVel.copy(af);
         this.gVel.multiplyScalar(1 / this.mass);
         // �@�̂Ŕ��������R��[���I�ɐ���
-        var _v = new CVector3();
-        _v.set(this.velocity.x, this.velocity.y, this.velocity.z);
-        var len = _v.abs();
-        _v.x /= len;
-        _v.y /= len;
-        _v.z /= len;
+        var _v = new THREE.Vector3(); //new CVector3()
+        // _v.set(this.velocity.x, this.velocity.y, this.velocity.z);
+        // let len = _v.abs();
+        // _v.x /= len;
+        // _v.y /= len;
+        // _v.z /= len;
+        _v.copy(this.velocity);
+        _v.normalize();
         this.velocity.x -= this.velocity.x * this.velocity.x * 0.00002 * _v.x;
         this.velocity.y -= this.velocity.y * this.velocity.y * 0.00002 * _v.y;
         this.velocity.z -= this.velocity.z * this.velocity.z * 0.00002 * _v.z;
@@ -1690,7 +1704,9 @@ var Plane = (function (_super) {
                 dm.z += (k / 4) * 5;
                 this.change_l2w(dm, oi);
                 var v = oi.abs();
-                ap.forward.setConsInv(oi, v);
+                // ap.forward.setConsInv(oi, v);
+                ap.forward.copy(oi);
+                ap.forward.divideScalar(v);
                 // �e�평����
                 ap.use = 100;
                 ap.count = 0;
