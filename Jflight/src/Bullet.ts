@@ -8,10 +8,6 @@
 class Bullet extends PhysicsState {
 
     // 変数
-
-    // public pVel = new CVector3();         // 位置
-    // public vVel = new CVector3();         // 速度
-
     public oldPosition = new THREE.Vector3();     // １ステップ前の位置
 
     public use = 0;               // 使用状態（0で未使用）
@@ -19,9 +15,9 @@ class Bullet extends PhysicsState {
 
     // テンポラリ用オブジェクト
 
-    protected m_a = new CVector3();
-    protected m_b = new CVector3();
-    protected m_vv = new CVector3();
+    // protected m_a = new CVector3();
+    // protected m_b = new CVector3();
+    // protected m_vv = new CVector3();
 
     private sphere: THREE.Mesh;
     // コンストラクタ
@@ -48,7 +44,7 @@ class Bullet extends PhysicsState {
 
         // 移動
         // this.position.addCons(this.velocity, Jflight.DT);
-        this.position.addScaledVector(<any>this.velocity, Jflight.DT);
+        this.position.addScaledVector(this.velocity, Jflight.DT);
         this.use--;
 
         // 弾丸を移動させる
@@ -81,16 +77,25 @@ class Bullet extends PhysicsState {
             // 点と直線の方程式で再接近距離を求めても良いが、面倒だったので手抜き 。
 
             // 現在の弾丸の位置と目標との差ベクトルを求める
-            this.m_a.setMinus(<any>this.position, <any>world.plane[plane.gunTarget].position);
+            let a = new THREE.Vector3();
+            // this.m_a.setMinus(<any>this.position, <any>world.plane[plane.gunTarget].position);
+            a.subVectors(this.position, world.plane[plane.gunTarget].position);
 
             // 一つ前の弾丸の位置と目標との差ベクトルを求める
-            this.m_b.setMinus(<any>this.oldPosition, <any>world.plane[plane.gunTarget].position);
+            let b = new THREE.Vector3();
+            // this.m_b.setMinus(<any>this.oldPosition, <any>world.plane[plane.gunTarget].position);
+            b.subVectors(this.oldPosition, world.plane[plane.gunTarget].position);
 
             // 一つ前の弾丸の位置と現在の弾丸の位置との差ベクトルを求める
-            this.m_vv.setCons(<any>this.velocity, Jflight.DT);
+            //this.m_vv.setCons(<any>this.velocity, Jflight.DT);
+            let v = new THREE.Vector3();
+            v.copy(this.velocity);
+            v.multiplyScalar(Jflight.DT);
 
-            let v0 = this.m_vv.abs();
-            let l = this.m_a.abs() + this.m_b.abs();
+            //let v0 = this.m_vv.abs();
+            let v0 = v.length();
+            // let l = this.m_a.abs() + this.m_b.abs();
+            let l = a.length() + b.length();
 
             if (l < v0 * 1.05) {
                 // 命中
@@ -98,14 +103,18 @@ class Bullet extends PhysicsState {
                 this.use = 10; // 直ぐには消さないで跳ね飛ばす
 
                 // 現在位置と一つ前の位置の中間位置方向の速度成分を足して跳ね飛ばす
-                this.m_vv.x = (this.m_a.x + this.m_b.x) / 2.0;
-                this.m_vv.y = (this.m_a.y + this.m_b.y) / 2.0;
-                this.m_vv.z = (this.m_a.z + this.m_b.z) / 2.0;
-                l = this.m_vv.abs();
-                this.m_vv.consInv(l);
+                // v.x = (a.x + b.x) / 2.0;
+                // v.y = (a.y + b.y) / 2.0;
+                // v.z = (a.z + b.z) / 2.0;
+                v.addVectors(a, b);
+                v.divideScalar(2);
+
+                // l = this.m_vv.abs();
+                // this.m_vv.consInv(l);
+                v.normalize();
 
                 // this.velocity.addCons(this.m_vv, v0 / 0.1);
-                this.velocity.addScaledVector(<any>this.m_vv, v0 / 0.1);
+                this.velocity.addScaledVector(v, v0 / 0.1);
 
                 // this.velocity.cons(0.1);
                 this.velocity.multiplyScalar(0.1);

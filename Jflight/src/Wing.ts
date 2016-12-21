@@ -32,7 +32,12 @@ class Wing extends PhysicsState {
 
     // テンポラリオブジェクト
 
-    protected m_pp: CVector3; protected m_op: CVector3; protected m_ti: CVector3; protected m_ni: CVector3; protected m_vp: CVector3; protected m_vp2: CVector3;
+    // protected m_pp: CVector3;
+    protected m_op: CVector3;
+    protected m_ti: CVector3;
+    protected m_ni: CVector3;
+    protected m_vp: CVector3;
+    protected m_vp2: CVector3;
 
     protected m_wx: CVector3; protected m_wy: CVector3; protected m_wz: CVector3;
 
@@ -45,7 +50,7 @@ class Wing extends PhysicsState {
 
         this.fVel = new THREE.Vector3();
 
-        this.m_pp = new CVector3();
+        // this.m_pp = new CVector3();
         this.m_op = new CVector3();
         this.m_ti = new CVector3();
         this.m_ni = new CVector3();

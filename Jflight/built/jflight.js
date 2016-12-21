@@ -508,7 +508,7 @@ var Wing = (function (_super) {
         _this.yVel = new THREE.Vector3(); // �����W�x�P�ʃx�N�g���i�@�̍��W�j
         _this.zVel = new THREE.Vector3(); // �����W�y�P�ʃx�N�g���i�@�̍��W�j
         _this.fVel = new THREE.Vector3();
-        _this.m_pp = new CVector3();
+        // this.m_pp = new CVector3();
         _this.m_op = new CVector3();
         _this.m_ti = new CVector3();
         _this.m_ni = new CVector3();
@@ -631,15 +631,9 @@ var Bullet = (function (_super) {
     function Bullet(scene) {
         var _this = _super.call(this) || this;
         // �ϐ�
-        // public pVel = new CVector3();         // �ʒu
-        // public vVel = new CVector3();         // ���x
         _this.oldPosition = new THREE.Vector3(); // �P�X�e�b�v�O�̈ʒu
         _this.use = 0; // �g�p��ԁi0�Ŗ��g�p�j
         _this.bom = 0; // ������ԁi0�Ŗ����j
-        // �e���|�����p�I�u�W�F�N�g
-        _this.m_a = new CVector3();
-        _this.m_b = new CVector3();
-        _this.m_vv = new CVector3();
         var geometry = new THREE.SphereGeometry(5, 8, 8);
         var material = new THREE.MeshBasicMaterial({ color: 0xffff00 });
         _this.sphere = new THREE.Mesh(geometry, material);
@@ -684,25 +678,37 @@ var Bullet = (function (_super) {
             // �s���Ă���B�e�ۑ��x���������߁A�P�ɋ�������߂Ă������Ȃ��B
             // �_�ƒ����̕������ōĐڋߋ�������߂Ă�ǂ����A�ʓ|�������̂Ŏ蔲�� �B
             // ���݂̒e�ۂ̈ʒu�ƖڕW�Ƃ̍��x�N�g������߂�
-            this.m_a.setMinus(this.position, world.plane[plane.gunTarget].position);
+            var a = new THREE.Vector3();
+            // this.m_a.setMinus(<any>this.position, <any>world.plane[plane.gunTarget].position);
+            a.subVectors(this.position, world.plane[plane.gunTarget].position);
             // ��O�̒e�ۂ̈ʒu�ƖڕW�Ƃ̍��x�N�g������߂�
-            this.m_b.setMinus(this.oldPosition, world.plane[plane.gunTarget].position);
+            var b = new THREE.Vector3();
+            // this.m_b.setMinus(<any>this.oldPosition, <any>world.plane[plane.gunTarget].position);
+            b.subVectors(this.oldPosition, world.plane[plane.gunTarget].position);
             // ��O�̒e�ۂ̈ʒu�ƌ��݂̒e�ۂ̈ʒu�Ƃ̍��x�N�g������߂�
-            this.m_vv.setCons(this.velocity, Jflight.DT);
-            var v0 = this.m_vv.abs();
-            var l = this.m_a.abs() + this.m_b.abs();
+            //this.m_vv.setCons(<any>this.velocity, Jflight.DT);
+            var v = new THREE.Vector3();
+            v.copy(this.velocity);
+            v.multiplyScalar(Jflight.DT);
+            //let v0 = this.m_vv.abs();
+            var v0 = v.length();
+            // let l = this.m_a.abs() + this.m_b.abs();
+            var l = a.length() + b.length();
             if (l < v0 * 1.05) {
                 // ����
                 this.bom = 1; // �����\���p�ɃZ�b�g
                 this.use = 10; // �����ɂ͏����Ȃ��Œ��˔�΂�
                 // ���݈ʒu�ƈ�O�̈ʒu�̒��Ԉʒu�����̑��x�����𑫂��Ē��˔�΂�
-                this.m_vv.x = (this.m_a.x + this.m_b.x) / 2.0;
-                this.m_vv.y = (this.m_a.y + this.m_b.y) / 2.0;
-                this.m_vv.z = (this.m_a.z + this.m_b.z) / 2.0;
-                l = this.m_vv.abs();
-                this.m_vv.consInv(l);
+                // v.x = (a.x + b.x) / 2.0;
+                // v.y = (a.y + b.y) / 2.0;
+                // v.z = (a.z + b.z) / 2.0;
+                v.addVectors(a, b);
+                v.divideScalar(2);
+                // l = this.m_vv.abs();
+                // this.m_vv.consInv(l);
+                v.normalize();
                 // this.velocity.addCons(this.m_vv, v0 / 0.1);
-                this.velocity.addScaledVector(this.m_vv, v0 / 0.1);
+                this.velocity.addScaledVector(v, v0 / 0.1);
                 // this.velocity.cons(0.1);
                 this.velocity.multiplyScalar(0.1);
             }
@@ -957,9 +963,7 @@ var Plane = (function (_super) {
         }
         _this.aamTarget = new Array(Plane.MMMAX);
         _this.posInit();
-        var material = new THREE.LineBasicMaterial({
-            color: 0xffffff
-        });
+        var material = new THREE.LineBasicMaterial({ color: 0xffffff });
         var geometry = new THREE.Geometry();
         for (var _i = 0, _a = Jflight.obj; _i < _a.length; _i++) {
             var vertices = _a[_i];
