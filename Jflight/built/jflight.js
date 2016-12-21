@@ -479,8 +479,8 @@ var CVector3 = (function () {
 ///<reference path="../Math/CVector3.ts" />
 var PhysicsState = (function () {
     function PhysicsState() {
-        this.position = new THREE.Vector3(); //new CVector3();    // 位置（ワールド座標系）
-        this.velocity = new CVector3(); // 速度（ワールド座標系）
+        this.position = new THREE.Vector3(); // 位置（ワールド座標系）
+        this.velocity = new THREE.Vector3(); // 速度（ワールド座標系）
         this.rotation = new THREE.Euler(); //
     }
     return PhysicsState;
@@ -700,8 +700,10 @@ var Bullet = (function (_super) {
                 this.m_vv.z = (this.m_a.z + this.m_b.z) / 2.0;
                 l = this.m_vv.abs();
                 this.m_vv.consInv(l);
-                this.velocity.addCons(this.m_vv, v0 / 0.1);
-                this.velocity.cons(0.1);
+                // this.velocity.addCons(this.m_vv, v0 / 0.1);
+                this.velocity.addScaledVector(this.m_vv, v0 / 0.1);
+                // this.velocity.cons(0.1);
+                this.velocity.multiplyScalar(0.1);
             }
         }
         // �n�ʂƂ̓����蔻��
@@ -767,7 +769,7 @@ var Missile = (function (_super) {
         // ���b�NON����Ă��āA�c��X�e�b�v��85�ȉ��Ȃ�z�[�~���O����
         if (this.targetNo >= 0 && this.use < 100 - 15) {
             // �����̑��x����߂�
-            var v = this.velocity.abs();
+            var v = this.velocity.length();
             if (Math.abs(v) < 1) {
                 v = 1;
             }
@@ -819,12 +821,13 @@ var Missile = (function (_super) {
             var aa = 1.0 / 20;
             var bb = 1 - aa;
             // ���݂̑��x�����ƌ���������������ĐV���ȑ��x�����Ƃ���
-            var v = this.velocity.abs();
+            var v = this.velocity.length();
             this.velocity.x = this.forward.x * v * aa + this.velocity.x * bb;
             this.velocity.y = this.forward.y * v * aa + this.velocity.y * bb;
             this.velocity.z = this.forward.z * v * aa + this.velocity.z * bb;
             // �~�T�C������
-            this.velocity.addCons(this.forward, 10.0);
+            // this.velocity.addCons(this.forward, 10.0);
+            this.velocity.addScaledVector(this.forward, 10.0);
         }
     };
     // �~�T�C���ړ��A�G�@�Ƃ̂����蔻��A�n�ʂƂ̓����蔻���s��
@@ -1354,7 +1357,8 @@ var Plane = (function (_super) {
             this.gVel.z += (Math.random() - 0.5) * 5;
         }
         // �@�̂̈ʒu��ϕ����ċ��߂�
-        this.velocity.addCons(this.gVel, Jflight.DT);
+        // this.velocity.addCons(this.gVel, Jflight.DT);
+        this.velocity.addScaledVector(this.gVel, Jflight.DT);
         // this.position.addCons(this.velocity, Jflight.DT);
         this.position.addScaledVector(this.velocity, Jflight.DT);
         // �O�̂��߁A�n�ʂɂ߂荞�񂾂��ǂ����`�F�b�N
@@ -1544,7 +1548,8 @@ var Plane = (function (_super) {
         if (this.gunShoot && this.gunTemp++ < Plane.MAXT) {
             for (var i = 0; i < Plane.BMAX; i++) {
                 if (this.bullets[i].use === 0) {
-                    this.bullets[i].velocity.setPlus(this.velocity, oi);
+                    // this.bullets[i].velocity.setPlus(this.velocity, oi);
+                    this.bullets[i].velocity.addVectors(this.velocity, oi);
                     var aa = Math.random();
                     // this.bullets[i].position.setPlus(this.position, ni);
                     this.bullets[i].position.addVectors(this.position, ni);
@@ -1638,7 +1643,8 @@ var Plane = (function (_super) {
                 this.change_l2w(dm, oi);
                 // ap.position.setPlus(this.position, ni);
                 ap.position.addVectors(this.position, ni);
-                ap.velocity.setPlus(this.velocity, oi);
+                // ap.velocity.setPlus(this.velocity, oi);
+                ap.velocity.addVectors(this.velocity, oi);
                 // ���ˌ�������߂�
                 switch (k % 4) {
                     case 0:
@@ -2117,7 +2123,7 @@ var HUD = (function () {
                 this.drawLine(context, "rgb(255, 255, 255)", centerX - 150, centerY + i * 20 + Math.tan(x) * centerY, centerX + 150, centerY + i * 20 + Math.tan(x) * centerY);
             }
             context.restore();
-            this.fillText(context, "Speed=" + this.plane.velocity.abs(), 50, 50);
+            this.fillText(context, "Speed=" + this.plane.velocity.length(), 50, 50);
         }
     };
     return HUD;

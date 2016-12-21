@@ -70,7 +70,7 @@ class Missile extends PhysicsState {
         if (this.targetNo >= 0 && this.use < 100 - 15) {
 
             // 自分の速度を求める
-            let v = this.velocity.abs();
+            let v = this.velocity.length();
             if (Math.abs(v) < 1) {
                 v = 1;
             }
@@ -86,7 +86,7 @@ class Missile extends PhysicsState {
             }
 
             // 追尾目標との速度差を求める
-            this.m_a0.setMinus(tp.velocity, this.velocity);
+            this.m_a0.setMinus(<any>tp.velocity, <any>this.velocity);
             let m = this.m_a0.abs();
 
             // 衝突予想時間を修正ありで求める
@@ -135,13 +135,14 @@ class Missile extends PhysicsState {
             let bb = 1 - aa;
 
             // 現在の速度成分と向き成分を合成して新たな速度成分とする
-            let v = this.velocity.abs();
+            let v = this.velocity.length();
             this.velocity.x = this.forward.x * v * aa + this.velocity.x * bb;
             this.velocity.y = this.forward.y * v * aa + this.velocity.y * bb;
             this.velocity.z = this.forward.z * v * aa + this.velocity.z * bb;
 
             // ミサイル加速
-            this.velocity.addCons(this.forward, 10.0);
+            // this.velocity.addCons(this.forward, 10.0);
+            this.velocity.addScaledVector(<any>this.forward, 10.0);
         }
     }
 

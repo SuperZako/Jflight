@@ -100,7 +100,7 @@ class HUD {
                 this.drawLine(context, "rgb(255, 255, 255)", centerX - 150, centerY + i * 20 + Math.tan(x) * centerY, centerX + 150, centerY + i * 20 + Math.tan(x) * centerY);
             }
             context.restore();
-            this.fillText(context, "Speed=" + this.plane.velocity.abs(), 50, 50);
+            this.fillText(context, "Speed=" + this.plane.velocity.length(), 50, 50);
         }
 
 

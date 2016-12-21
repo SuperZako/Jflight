@@ -87,7 +87,7 @@ class Bullet extends PhysicsState {
             this.m_b.setMinus(this.oldPosition, <any>world.plane[plane.gunTarget].position);
 
             // 一つ前の弾丸の位置と現在の弾丸の位置との差ベクトルを求める
-            this.m_vv.setCons(this.velocity, Jflight.DT);
+            this.m_vv.setCons(<any>this.velocity, Jflight.DT);
 
             let v0 = this.m_vv.abs();
             let l = this.m_a.abs() + this.m_b.abs();
@@ -103,8 +103,12 @@ class Bullet extends PhysicsState {
                 this.m_vv.z = (this.m_a.z + this.m_b.z) / 2.0;
                 l = this.m_vv.abs();
                 this.m_vv.consInv(l);
-                this.velocity.addCons(this.m_vv, v0 / 0.1);
-                this.velocity.cons(0.1);
+
+                // this.velocity.addCons(this.m_vv, v0 / 0.1);
+                this.velocity.addScaledVector(<any>this.m_vv, v0 / 0.1);
+
+                // this.velocity.cons(0.1);
+                this.velocity.multiplyScalar(0.1);
             }
         }
 

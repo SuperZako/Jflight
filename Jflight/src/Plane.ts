@@ -504,7 +504,7 @@ class Plane extends PhysicsState {
         this.wings[5].aAngle = 0;
         this.wings[5].bAngle = 0;
 
-        this.change_w2l(this.velocity, this.localVelocity);
+        this.change_w2l(<any>this.velocity, this.localVelocity);
         this.onGround = false;
 
         if (this.height < 5) {
@@ -628,7 +628,8 @@ class Plane extends PhysicsState {
 
         // 機体の位置を積分して求める
 
-        this.velocity.addCons(this.gVel, Jflight.DT);
+        // this.velocity.addCons(this.gVel, Jflight.DT);
+        this.velocity.addScaledVector(<any>this.gVel, Jflight.DT);
 
         // this.position.addCons(this.velocity, Jflight.DT);
         this.position.addScaledVector(<any>this.velocity, Jflight.DT);
@@ -785,7 +786,7 @@ class Plane extends PhysicsState {
         // 弾丸の初期速度を求めておく
         dm.set(this.gunX * 400 / 200, 400, this.gunY * 400 / 200);
         this.change_l2w(dm, oi);
-        oi.add(this.velocity);
+        oi.add(<any>this.velocity);
         this.gunTime = 1.0;
 
         // 弾丸の初期位置を求めておく
@@ -808,7 +809,7 @@ class Plane extends PhysicsState {
         // 機銃を目標へ向ける
         if (this.gunTarget >= 0) {
             c.set(world.plane[this.gunTarget].position.x, world.plane[this.gunTarget].position.y, world.plane[this.gunTarget].position.z);
-            c.addCons(world.plane[this.gunTarget].velocity, this.gunTime);
+            c.addCons(<any>world.plane[this.gunTarget].velocity, this.gunTime);
             world.change3d(this, c, a);
             world.change3d(this, <any>world.plane[this.gunTarget].position, b);
             sc.x += b.x - a.x;
@@ -856,7 +857,8 @@ class Plane extends PhysicsState {
         if (this.gunShoot && this.gunTemp++ < Plane.MAXT) {
             for (let i = 0; i < Plane.BMAX; i++) {
                 if (this.bullets[i].use === 0) {
-                    this.bullets[i].velocity.setPlus(this.velocity, oi);
+                    // this.bullets[i].velocity.setPlus(this.velocity, oi);
+                    this.bullets[i].velocity.addVectors(this.velocity, <any>oi);
                     let aa = Math.random();
 
                     // this.bullets[i].position.setPlus(this.position, ni);
@@ -944,7 +946,8 @@ class Plane extends PhysicsState {
                 // ap.position.setPlus(this.position, ni);
                 ap.position.addVectors(this.position, <any>ni);
 
-                ap.velocity.setPlus(this.velocity, oi);
+                // ap.velocity.setPlus(this.velocity, oi);
+                ap.velocity.addVectors(this.velocity, <any>oi);
 
                 // 発射向きを決める
 
