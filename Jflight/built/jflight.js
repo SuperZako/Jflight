@@ -507,15 +507,13 @@ var Wing = (function (_super) {
         _this.unitX = new THREE.Vector3(); // �����W�w�P�ʃx�N�g���i�@�̍��W�j
         _this.yVel = new THREE.Vector3(); // �����W�x�P�ʃx�N�g���i�@�̍��W�j
         _this.zVel = new THREE.Vector3(); // �����W�y�P�ʃx�N�g���i�@�̍��W�j
-        _this.fVel = new THREE.Vector3();
-        // this.m_pp = new CVector3();
-        _this.m_op = new CVector3();
-        _this.m_ti = new CVector3();
-        _this.m_ni = new CVector3();
-        _this.m_vp = new CVector3();
-        _this.m_vp2 = new CVector3();
-        _this.m_wx = new CVector3();
-        _this.m_wy = new CVector3();
+        _this.fVel = new THREE.Vector3(); // ���ɂ������Ă����
+        // this.m_ti = new CVector3();
+        // this.m_ni = new CVector3();
+        // this.m_vp = new CVector3();
+        // this.m_vp2 = new CVector3();
+        // this.m_wx = new CVector3();
+        // this.m_wy = new CVector3();
         _this.m_wz = new CVector3();
         _this.m_qx = new CVector3();
         _this.m_qy = new CVector3();
@@ -526,11 +524,12 @@ var Wing = (function (_super) {
     // fVel�Ɍv�Z���ʂ����܂�
     // ve�͋�C���x�Ano�͗�No.�i�}�p�v�Z�Ɏg�p�j�Aboost�̓G���W���u�[�X�g
     Wing.prototype.calc = function (plane, ve, no, boost) {
-        var n, at, rr, cl, cd, ff;
+        var cl, cd, ff;
         // �@�̂̑��x�Ɖ�]���A���̈ʒu���痃�ɂ����鑬�x����߂�i�O�όv�Z�j
-        this.m_vp.x = plane.localVelocity.x + this.position.y * plane.vaVel.z - this.position.z * plane.vaVel.y;
-        this.m_vp.y = plane.localVelocity.y + this.position.z * plane.vaVel.x - this.position.x * plane.vaVel.z;
-        this.m_vp.z = plane.localVelocity.z + this.position.x * plane.vaVel.y - this.position.y * plane.vaVel.x;
+        var vp = new THREE.Vector3();
+        vp.x = plane.localVelocity.x + this.position.y * plane.vaVel.z - this.position.z * plane.vaVel.y;
+        vp.y = plane.localVelocity.y + this.position.z * plane.vaVel.x - this.position.x * plane.vaVel.z;
+        vp.z = plane.localVelocity.z + this.position.x * plane.vaVel.y - this.position.y * plane.vaVel.x;
         // ���̂Ђ˂���ɁA��{���W�x�N�g�����]
         var sin = Math.sin(this.bAngle);
         var cos = Math.cos(this.bAngle);
@@ -543,10 +542,13 @@ var Wing = (function (_super) {
         this.m_qz.z = this.unitX.z * sin + this.zVel.z * cos;
         sin = Math.sin(this.aAngle);
         cos = Math.cos(this.aAngle);
-        this.m_wx.set(this.m_qx.x, this.m_qx.y, this.m_qx.z);
-        this.m_wy.x = this.m_qy.x * cos - this.m_qz.x * sin;
-        this.m_wy.y = this.m_qy.y * cos - this.m_qz.y * sin;
-        this.m_wy.z = this.m_qy.z * cos - this.m_qz.z * sin;
+        // this.m_wx.set(this.m_qx.x, this.m_qx.y, this.m_qx.z);
+        var wx = new THREE.Vector3();
+        wx.copy(this.m_qx);
+        var wy = new THREE.Vector3();
+        wy.x = this.m_qy.x * cos - this.m_qz.x * sin;
+        wy.y = this.m_qy.y * cos - this.m_qz.y * sin;
+        wy.z = this.m_qy.z * cos - this.m_qz.z * sin;
         this.m_wz.x = this.m_qy.x * sin + this.m_qz.x * cos;
         this.m_wz.y = this.m_qy.y * sin + this.m_qz.y * cos;
         this.m_wz.z = this.m_qy.z * sin + this.m_qz.z * cos;
@@ -554,36 +556,45 @@ var Wing = (function (_super) {
         this.fVel.set(0, 0, 0);
         if (this.sVal > 0) {
             // ���v�Z
-            var vv = this.m_vp.abs();
+            // let vv = this.m_vp.abs();
             // �����x�̒P�ʃx�N�g������߂�(�@�̍��W)
-            this.m_ti.x = this.m_vp.x / vv;
-            this.m_ti.y = this.m_vp.y / vv;
-            this.m_ti.z = this.m_vp.z / vv;
+            // this.m_ti.x = this.m_vp.x / vv;
+            // this.m_ti.y = this.m_vp.y / vv;
+            // this.m_ti.z = this.m_vp.z / vv;
+            var ti = new THREE.Vector3();
+            ti.copy(vp);
+            ti.normalize();
             // �@�̍��W�̗����x�𗃍��W�n�ɕϊ�
-            var dx = this.m_wx.x * this.m_vp.x + this.m_wx.y * this.m_vp.y + this.m_wx.z * this.m_vp.z;
-            var dy = this.m_wy.x * this.m_vp.x + this.m_wy.y * this.m_vp.y + this.m_wy.z * this.m_vp.z;
-            var dz = this.m_wz.x * this.m_vp.x + this.m_wz.y * this.m_vp.y + this.m_wz.z * this.m_vp.z;
+            // let dx = wx.x * vp.x + wx.y * vp.y + wx.z * vp.z;
+            var dx = wx.dot(vp);
+            var dy = wy.x * vp.x + wy.y * vp.y + wy.z * vp.z;
+            var dz = this.m_wz.x * vp.x + this.m_wz.y * vp.y + this.m_wz.z * vp.z;
             // �g�͕����̑��x��������߂�
-            rr = Math.sqrt(dx * dx + dy * dy);
+            var rr = Math.sqrt(dx * dx + dy * dy);
+            var vp2 = new THREE.Vector3();
             if (rr > 0.001) {
-                this.m_vp2.x = (this.m_wx.x * dx + this.m_wy.x * dy) / rr;
-                this.m_vp2.y = (this.m_wx.y * dx + this.m_wy.y * dy) / rr;
-                this.m_vp2.z = (this.m_wx.z * dx + this.m_wy.z * dy) / rr;
+                vp2.x = (wx.x * dx + wy.x * dy) / rr;
+                vp2.y = (wx.y * dx + wy.y * dy) / rr;
+                vp2.z = (wx.z * dx + wy.z * dy) / rr;
             }
             else {
-                this.m_vp2.x = this.m_wx.x * dx + this.m_wy.x * dy;
-                this.m_vp2.y = this.m_wx.y * dx + this.m_wy.y * dy;
-                this.m_vp2.z = this.m_wx.z * dx + this.m_wy.z * dy;
+                vp2.x = wx.x * dx + wy.x * dy;
+                vp2.y = wx.y * dx + wy.y * dy;
+                vp2.z = wx.z * dx + wy.z * dy;
             }
-            this.m_ni.x = this.m_wz.x * rr - this.m_vp2.x * dz;
-            this.m_ni.y = this.m_wz.y * rr - this.m_vp2.y * dz;
-            this.m_ni.z = this.m_wz.z * rr - this.m_vp2.z * dz;
-            vv = this.m_ni.abs();
-            this.m_ni.consInv(vv);
+            var ni = new THREE.Vector3();
+            ni.x = this.m_wz.x * rr - vp2.x * dz;
+            ni.y = this.m_wz.y * rr - vp2.y * dz;
+            ni.z = this.m_wz.z * rr - vp2.z * dz;
+            // vv = this.m_ni.abs();
+            // this.m_ni.consInv(vv);
+            var vv = ni.length();
+            ni.normalize();
             // �}�p����߂�
-            at = -Math.atan(dz / dy);
-            if (no === 0)
+            var at = -Math.atan(dz / dy);
+            if (no === 0) {
                 plane.aoa = at;
+            }
             if (Math.abs(at) < 0.4) {
                 //  �g�͌W���ƍR�͌W����}�p���狁�߂�
                 cl = at * 4;
@@ -597,24 +608,26 @@ var Wing = (function (_super) {
             // �R�͂���߂�
             t0 = 0.5 * vv * vv * cd * ve * this.sVal;
             // �g�͂���߂�
-            n = 0.5 * rr * rr * cl * ve * this.sVal;
-            this.fVel.x = n * this.m_ni.x - t0 * this.m_ti.x;
-            this.fVel.y = n * this.m_ni.y - t0 * this.m_ti.y;
-            this.fVel.z = n * this.m_ni.z - t0 * this.m_ti.z;
+            var n = 0.5 * rr * rr * cl * ve * this.sVal;
+            this.fVel.x = n * ni.x - t0 * ti.x;
+            this.fVel.y = n * ni.y - t0 * ti.y;
+            this.fVel.z = n * ni.z - t0 * ti.z;
         }
         if (this.tVal > 0) {
             // ���͌v�Z
             // ���͂���߂�
-            if (boost)
+            if (boost) {
                 ff = ((5 * 10) / 0.9) * ve * 4.8 * this.tVal;
-            else
+            }
+            else {
                 ff = (plane.power / 0.9) * ve * 4.8 * this.tVal;
+            }
             // �n�ʂɋ߂��ꍇ�A�������̐��͂�グ��
             if (plane.height < 20)
                 ff *= (1 + (20 - plane.height) / 40);
             // ���͂������
             // this.fVel.addCons(this.m_wy, ff);
-            this.fVel.addScaledVector(this.m_wy, ff);
+            this.fVel.addScaledVector(wy, ff);
         }
         // this.forward.set(this.m_wy.x, this.m_wy.y, this.m_wy.z);
     };
