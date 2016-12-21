@@ -44,22 +44,22 @@ class Plane extends PhysicsState {
     // public vpVel = new CVector3();   // 機体速度（ワールド座標系）
     // public aVel = new THREE.Euler();    // 機体向き（オイラー角）
 
-    public localVelocity = new CVector3();    // 機体速度（機体座標系）
-    public gVel = new CVector3();    // 機体加速度（ワールド座標系）
+    public localVelocity = new THREE.Vector3();    // 機体速度（機体座標系）
+    public gVel = new THREE.Vector3();    // 機体加速度（ワールド座標系）
 
-    public vaVel = new CVector3();   // 機体回転速度（オイラー角）
-    public gcVel = new CVector3();   // 弾丸の将来予想位置
+    public vaVel = new THREE.Vector3();   // 機体回転速度（オイラー角）
+    public gcVel = new THREE.Vector3();   // 弾丸の将来予想位置
     public height: number;           // 機体の高度
     public gHeight: number;          // 機体直下の地面の高さ
     public mass: number;             // 機体質量
-    public iMass = new CVector3();   // 機体各軸の慣性モーメント
+    public iMass = new THREE.Vector3();   // 機体各軸の慣性モーメント
     public onGround: boolean;        // 地面上にいるかどうか
     public aoa: number;              // 機体の迎角
 
     // 操縦系
 
-    public stickPos = new CVector3();   // 操縦系位置（x,y-スティック,z-ペダル）
-    public stickVel = new CVector3();   // 操縦系変化率
+    public stickPos = new THREE.Vector3();   // 操縦系位置（x,y-スティック,z-ペダル）
+    public stickVel = new THREE.Vector3();   // 操縦系変化率
 
     public readonly stickR = 0.1;    // 操縦系の感度 (R-センターへの減衰率)
     public readonly stickA = 0.05;    // 操縦系の感度（A-変化率）
@@ -117,9 +117,7 @@ class Plane extends PhysicsState {
         this.posInit();
 
 
-        var material = new THREE.LineBasicMaterial({
-            color: 0xffffff
-        });
+        var material = new THREE.LineBasicMaterial({ color: 0xffffff });
 
         var geometry = new THREE.Geometry();
 
@@ -439,8 +437,10 @@ class Plane extends PhysicsState {
             // world.isMouseMove = false;
         }
 
-        this.stickPos.addCons(this.stickVel, this.stickA);
-        this.stickPos.subCons(this.stickPos, this.stickR);
+        // this.stickPos.addCons(this.stickVel, this.stickA);
+        this.stickPos.addScaledVector(<any>this.stickVel, this.stickA);
+        // this.stickPos.subCons(this.stickPos, this.stickR);
+        this.stickPos.addScaledVector(this.stickPos, -this.stickR);
 
         // スティック位置を距離１以内に丸めておく
 
@@ -504,7 +504,7 @@ class Plane extends PhysicsState {
         this.wings[5].aAngle = 0;
         this.wings[5].bAngle = 0;
 
-        this.change_w2l(<any>this.velocity, this.localVelocity);
+        this.change_w2l(<any>this.velocity, <any>this.localVelocity);
         this.onGround = false;
 
         if (this.height < 5) {
@@ -591,7 +591,9 @@ class Plane extends PhysicsState {
 
         // 加速度を決定
 
-        this.gVel.setConsInv(af, this.mass);
+        // this.gVel.setConsInv(af, this.mass);
+        this.gVel.copy(<any>af);
+        this.gVel.multiplyScalar(1 / this.mass);
 
         // 機体で発生する抵抗を擬似的に生成
 
@@ -804,7 +806,7 @@ class Plane extends PhysicsState {
         this.gcVel.y = this.position.y + ni.y + (oi.y - this.gVel.y * this.gunTime) * this.gunTime;
         this.gcVel.z = this.position.z + ni.z + (oi.z + (-9.8 - this.gVel.z) * this.gunTime / 2) * this.gunTime;
 
-        world.change3d(this, this.gcVel, sc);
+        world.change3d(this, <any>this.gcVel, sc);
 
         // 機銃を目標へ向ける
         if (this.gunTarget >= 0) {

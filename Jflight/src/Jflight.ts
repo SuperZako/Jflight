@@ -352,7 +352,7 @@ class Jflight extends Applet3D {
 
             // ’eŠÛ‚ª”š”­’†‚Ìê‡A”š‰~•\Ž¦
             if (bp.bom > 0) {
-                this.change3d(this.plane[0], bp.oldPosition, cp);
+                this.change3d(this.plane[0], <any>bp.oldPosition, cp);
                 this.fillBarc(cp);
                 bp.bom--;
             }

@@ -17,12 +17,12 @@ class Wing extends PhysicsState {
     // 変数
     // public pVel: CVector3;    // 翼中心位置（機体座標）
 
-    public unitX = new CVector3();   // 翼座標Ｘ単位ベクトル（機体座標）
-    public yVel = new CVector3();   // 翼座標Ｙ単位ベクトル（機体座標）
-    public zVel = new CVector3();   // 翼座標Ｚ単位ベクトル（機体座標）
+    public unitX = new THREE.Vector3();   // 翼座標Ｘ単位ベクトル（機体座標）
+    public yVel = new THREE.Vector3();   // 翼座標Ｙ単位ベクトル（機体座標）
+    public zVel = new THREE.Vector3();   // 翼座標Ｚ単位ベクトル（機体座標）
     public mass: number;      // 翼の質量
     public sVal: number;      // 翼面積
-    public fVel: CVector3;    // 翼にかかっている力
+    public fVel: THREE.Vector3;    // 翼にかかっている力
     public aAngle: number;    // 翼のＸ軸ひねり角度（rad）
     public bAngle: number;    // 翼のＹ軸ひねり角度（rad）
 
@@ -33,6 +33,7 @@ class Wing extends PhysicsState {
     // テンポラリオブジェクト
 
     protected m_pp: CVector3; protected m_op: CVector3; protected m_ti: CVector3; protected m_ni: CVector3; protected m_vp: CVector3; protected m_vp2: CVector3;
+
     protected m_wx: CVector3; protected m_wy: CVector3; protected m_wz: CVector3;
 
     protected m_qx: CVector3; protected m_qy: CVector3; protected m_qz: CVector3;
@@ -42,7 +43,7 @@ class Wing extends PhysicsState {
     public constructor() {
         super();
 
-        this.fVel = new CVector3();
+        this.fVel = new THREE.Vector3();
 
         this.m_pp = new CVector3();
         this.m_op = new CVector3();
@@ -189,7 +190,8 @@ class Wing extends PhysicsState {
 
             // 推力を加える
 
-            this.fVel.addCons(this.m_wy, ff);
+            // this.fVel.addCons(this.m_wy, ff);
+            this.fVel.addScaledVector(<any>this.m_wy, ff);
         }
         // this.forward.set(this.m_wy.x, this.m_wy.y, this.m_wy.z);
     }

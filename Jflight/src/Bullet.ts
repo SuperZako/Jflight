@@ -12,7 +12,7 @@ class Bullet extends PhysicsState {
     // public pVel = new CVector3();         // 位置
     // public vVel = new CVector3();         // 速度
 
-    public oldPosition = new CVector3();     // １ステップ前の位置
+    public oldPosition = new THREE.Vector3();     // １ステップ前の位置
 
     public use = 0;               // 使用状態（0で未使用）
     public bom = 0;               // 爆発状態（0で未爆）
@@ -84,7 +84,7 @@ class Bullet extends PhysicsState {
             this.m_a.setMinus(<any>this.position, <any>world.plane[plane.gunTarget].position);
 
             // 一つ前の弾丸の位置と目標との差ベクトルを求める
-            this.m_b.setMinus(this.oldPosition, <any>world.plane[plane.gunTarget].position);
+            this.m_b.setMinus(<any>this.oldPosition, <any>world.plane[plane.gunTarget].position);
 
             // 一つ前の弾丸の位置と現在の弾丸の位置との差ベクトルを求める
             this.m_vv.setCons(<any>this.velocity, Jflight.DT);

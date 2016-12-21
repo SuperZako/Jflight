@@ -504,10 +504,10 @@ var Wing = (function (_super) {
         //     -------->X
         // �ϐ�
         // public pVel: CVector3;    // �����S�ʒu�i�@�̍��W�j
-        _this.unitX = new CVector3(); // �����W�w�P�ʃx�N�g���i�@�̍��W�j
-        _this.yVel = new CVector3(); // �����W�x�P�ʃx�N�g���i�@�̍��W�j
-        _this.zVel = new CVector3(); // �����W�y�P�ʃx�N�g���i�@�̍��W�j
-        _this.fVel = new CVector3();
+        _this.unitX = new THREE.Vector3(); // �����W�w�P�ʃx�N�g���i�@�̍��W�j
+        _this.yVel = new THREE.Vector3(); // �����W�x�P�ʃx�N�g���i�@�̍��W�j
+        _this.zVel = new THREE.Vector3(); // �����W�y�P�ʃx�N�g���i�@�̍��W�j
+        _this.fVel = new THREE.Vector3();
         _this.m_pp = new CVector3();
         _this.m_op = new CVector3();
         _this.m_ti = new CVector3();
@@ -613,7 +613,8 @@ var Wing = (function (_super) {
             if (plane.height < 20)
                 ff *= (1 + (20 - plane.height) / 40);
             // ���͂������
-            this.fVel.addCons(this.m_wy, ff);
+            // this.fVel.addCons(this.m_wy, ff);
+            this.fVel.addScaledVector(this.m_wy, ff);
         }
         // this.forward.set(this.m_wy.x, this.m_wy.y, this.m_wy.z);
     };
@@ -632,7 +633,7 @@ var Bullet = (function (_super) {
         // �ϐ�
         // public pVel = new CVector3();         // �ʒu
         // public vVel = new CVector3();         // ���x
-        _this.oldPosition = new CVector3(); // �P�X�e�b�v�O�̈ʒu
+        _this.oldPosition = new THREE.Vector3(); // �P�X�e�b�v�O�̈ʒu
         _this.use = 0; // �g�p��ԁi0�Ŗ��g�p�j
         _this.bom = 0; // ������ԁi0�Ŗ����j
         // �e���|�����p�I�u�W�F�N�g
@@ -931,14 +932,14 @@ var Plane = (function (_super) {
         // public position = new CVector3();    // �@�̈ʒu�i���[���h���W�n�j
         // public vpVel = new CVector3();   // �@�̑��x�i���[���h���W�n�j
         // public aVel = new THREE.Euler();    // �@�̌����i�I�C���[�p�j
-        _this.localVelocity = new CVector3(); // �@�̑��x�i�@�̍��W�n�j
-        _this.gVel = new CVector3(); // �@�̉����x�i���[���h���W�n�j
-        _this.vaVel = new CVector3(); // �@�̉�]���x�i�I�C���[�p�j
-        _this.gcVel = new CVector3(); // �e�ۂ̏����\�z�ʒu
-        _this.iMass = new CVector3(); // �@�̊e���̊������[�����g
+        _this.localVelocity = new THREE.Vector3(); // �@�̑��x�i�@�̍��W�n�j
+        _this.gVel = new THREE.Vector3(); // �@�̉����x�i���[���h���W�n�j
+        _this.vaVel = new THREE.Vector3(); // �@�̉�]���x�i�I�C���[�p�j
+        _this.gcVel = new THREE.Vector3(); // �e�ۂ̏����\�z�ʒu
+        _this.iMass = new THREE.Vector3(); // �@�̊e���̊������[�����g
         // ���c�n
-        _this.stickPos = new CVector3(); // ���c�n�ʒu�ix,y-�X�e�B�b�N,z-�y�_���j
-        _this.stickVel = new CVector3(); // ���c�n�ω���
+        _this.stickPos = new THREE.Vector3(); // ���c�n�ʒu�ix,y-�X�e�B�b�N,z-�y�_���j
+        _this.stickVel = new THREE.Vector3(); // ���c�n�ω���
         _this.stickR = 0.1; // ���c�n�̊��x (R-�Z���^�[�ւ̌�����)
         _this.stickA = 0.05; // ���c�n�̊��x�iA-�ω����j
         // �@�e�n
@@ -1209,8 +1210,10 @@ var Plane = (function (_super) {
             this.stickVel.x = dx;
             this.stickVel.y = dy;
         }
-        this.stickPos.addCons(this.stickVel, this.stickA);
-        this.stickPos.subCons(this.stickPos, this.stickR);
+        // this.stickPos.addCons(this.stickVel, this.stickA);
+        this.stickPos.addScaledVector(this.stickVel, this.stickA);
+        // this.stickPos.subCons(this.stickPos, this.stickR);
+        this.stickPos.addScaledVector(this.stickPos, -this.stickR);
         // �X�e�B�b�N�ʒu������P�ȓ�Ɋۂ߂Ă���
         var r = Math.sqrt(this.stickPos.x * this.stickPos.x + this.stickPos.y * this.stickPos.y);
         if (r > 1) {
@@ -1329,7 +1332,9 @@ var Plane = (function (_super) {
             this.rotation.z += Math.PI * 2;
         }
         // �����x�����
-        this.gVel.setConsInv(af, this.mass);
+        // this.gVel.setConsInv(af, this.mass);
+        this.gVel.copy(af);
+        this.gVel.multiplyScalar(1 / this.mass);
         // �@�̂Ŕ��������R��[���I�ɐ���
         var _v = new CVector3();
         _v.set(this.velocity.x, this.velocity.y, this.velocity.z);
