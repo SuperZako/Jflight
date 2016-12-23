@@ -235,7 +235,7 @@ var Applet3D = (function () {
     // keyBoost: boolean;                     // B�i�u�[�X�g�j�L�[�̏��
     // �R���X�g���N�^
     function Applet3D() {
-        this.camerapos = new CVector3();
+        this.camerapos = new THREE.Vector3();
         this.width = 600;
         this.height = 400;
         this.sCenterX = 300;
@@ -246,6 +246,20 @@ var Applet3D = (function () {
         }
         this.bgInit();
     }
+    Applet3D.prototype.setWidth = function (width) {
+        this.width = width;
+        this.sCenterX = width / 2;
+    };
+    Applet3D.prototype.getWidth = function () {
+        return this.width;
+    };
+    Applet3D.prototype.setHeight = function (heihgt) {
+        this.height = heihgt;
+        this.sCenterY = heihgt / 2;
+    };
+    Applet3D.prototype.getHeight = function () {
+        return this.height;
+    };
     // �o�b�N�o�b�t�@�̏�����
     Applet3D.prototype.bgInit = function () {
     };
@@ -367,116 +381,6 @@ var Applet3D = (function () {
     };
     return Applet3D;
 }());
-//
-// CVector3
-// �R���x�N�g���N���X
-//
-// �K�[�x�b�W�R���N�V���������邽�߁A�V�K�I�u�W�F�N�g�������K�v�ƂȂ�
-// �a�⍷����߂郁�\�b�h��������ĂȂ��̂Œ��ӁB
-// �����Ɨ��֐���d�����āA�����o�ϐ���public�ɂ��Ă���
-//
-var CVector3 = (function () {
-    // �ϐ�
-    // public x: number;
-    // public y: number;
-    // public z: number;
-    // �R���X�g���N�^
-    function CVector3(x, y, z) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        if (z === void 0) { z = 0; }
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        //this.set(ax, ay, az);
-    }
-    // �l�ݒ�
-    CVector3.prototype.set = function (x, y, z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        return this;
-    };
-    // �x�N�g�����Z
-    CVector3.prototype.add = function (a) {
-        this.x += a.x;
-        this.y += a.y;
-        this.z += a.z;
-        return this;
-    };
-    CVector3.prototype.setPlus = function (a, b) {
-        this.x = a.x + b.x;
-        this.y = a.y + b.y;
-        this.z = a.z + b.z;
-        return this;
-    };
-    // �x�N�g���萔�{���Z
-    CVector3.prototype.addCons = function (a, c) {
-        this.x += a.x * c;
-        this.y += a.y * c;
-        this.z += a.z * c;
-        return this;
-    };
-    // �x�N�g�����Z
-    CVector3.prototype.sub = function (a) {
-        this.x -= a.x;
-        this.y -= a.y;
-        this.z -= a.z;
-        return this;
-    };
-    CVector3.prototype.setMinus = function (a, b) {
-        this.x = a.x - b.x;
-        this.y = a.y - b.y;
-        this.z = a.z - b.z;
-        return this;
-    };
-    // �x�N�g���萔�{���Z
-    CVector3.prototype.subCons = function (a, c) {
-        this.x -= a.x * c;
-        this.y -= a.y * c;
-        this.z -= a.z * c;
-        return this;
-    };
-    // �萔�{
-    CVector3.prototype.cons = function (c) {
-        this.x *= c;
-        this.y *= c;
-        this.z *= c;
-        return this;
-    };
-    CVector3.prototype.consInv = function (c) {
-        this.x /= c;
-        this.y /= c;
-        this.z /= c;
-        return this;
-    };
-    CVector3.prototype.setCons = function (a, c) {
-        this.x = a.x * c;
-        this.y = a.y * c;
-        this.z = a.z * c;
-        return this;
-    };
-    CVector3.prototype.setConsInv = function (a, c) {
-        this.x = a.x / c;
-        this.y = a.y / c;
-        this.z = a.z / c;
-        return this;
-    };
-    // �x�N�g�����̂Q��
-    CVector3.prototype.abs2 = function () {
-        return this.x * this.x + this.y * this.y + this.z * this.z;
-    };
-    // �x�N�g����
-    CVector3.prototype.abs = function () {
-        return Math.sqrt(this.abs2());
-    };
-    // ���
-    CVector3.prototype.inprod = function (a) {
-        return this.x * a.x + this.y * a.y + this.z * a.z;
-    };
-    return CVector3;
-}());
-///<reference path="../Math/CVector3.ts" />
 var PhysicsState = (function () {
     function PhysicsState() {
         this.position = new THREE.Vector3(); // 位置（ワールド座標系）
@@ -504,7 +408,7 @@ var Wing = (function (_super) {
         //     -------->X
         // �ϐ�
         _this.unitX = new THREE.Vector3(); // �����W�w�P�ʃx�N�g���i�@�̍��W�j
-        _this.yVel = new THREE.Vector3(); // �����W�x�P�ʃx�N�g���i�@�̍��W�j
+        _this.unitY = new THREE.Vector3(); // �����W�x�P�ʃx�N�g���i�@�̍��W�j
         _this.zVel = new THREE.Vector3(); // �����W�y�P�ʃx�N�g���i�@�̍��W�j
         _this.fVel = new THREE.Vector3(); // ���ɂ������Ă����
         return _this;
@@ -519,6 +423,7 @@ var Wing = (function (_super) {
         // vp.x = plane.localVelocity.x + this.position.y * plane.vaVel.z - this.position.z * plane.vaVel.y;
         // vp.y = plane.localVelocity.y + this.position.z * plane.vaVel.x - this.position.x * plane.vaVel.z;
         // vp.z = plane.localVelocity.z + this.position.x * plane.vaVel.y - this.position.y * plane.vaVel.x;
+        // vp = plane.localVelocity + this.position.x �~ plane.vaVel;
         vp.crossVectors(this.position, plane.vaVel);
         vp.add(plane.localVelocity);
         // ���̂Ђ˂���ɁA��{���W�x�N�g�����]
@@ -528,11 +433,12 @@ var Wing = (function (_super) {
         // qx.x = this.unitX.x * cos - this.zVel.x * sin;
         // qx.y = this.unitX.y * cos - this.zVel.y * sin;
         // qx.z = this.unitX.z * cos - this.zVel.z * sin;
+        // qx = this.unitX * cos - this.zVel * sin;
         qx.addScaledVector(this.unitX, cos);
         qx.addScaledVector(this.zVel, -sin);
         var qy = new THREE.Vector3();
         //this.m_qy.set(this.yVel.x, this.yVel.y, this.yVel.z);
-        qy.copy(this.yVel);
+        qy.copy(this.unitY);
         var qz = new THREE.Vector3();
         qz.x = this.unitX.x * sin + this.zVel.x * cos;
         qz.y = this.unitX.y * sin + this.zVel.y * cos;
@@ -633,7 +539,6 @@ var Wing = (function (_super) {
     };
     return Wing;
 }(PhysicsState));
-///<reference path="./Math/CVector3.ts" />
 //
 // bullet
 // �e�ۃN���X
@@ -805,7 +710,7 @@ var Missile = (function (_super) {
             // �ǔ��ڕW�Ƃ̑��x������߂�
             // this.m_a0.setMinus(<any>tp.velocity, <any>this.velocity);
             a0.subVectors(tp.velocity, this.velocity);
-            //let m = this.m_a0.abs();
+            // let m = this.m_a0.abs();
             var m = a0.length();
             // �Փ˗\�z���Ԃ�C������ŋ��߂�
             var t0 = l / v * (1.0 - m / (800 + 1));
@@ -921,9 +826,9 @@ var Missile = (function (_super) {
         // �~�T�C�����������̏ꍇ�A���~�\��
         this.explosion.visible = false;
         if (this.bom > 0) {
-            //this.explosion.position.x = this.position.x;
-            //this.explosion.position.y = this.position.y;
-            //this.explosion.position.z = this.position.z;
+            // this.explosion.position.x = this.position.x;
+            // this.explosion.position.y = this.position.y;
+            // this.explosion.position.z = this.position.z;
             this.explosion.position.copy(this.position);
             this.explosion.visible = true;
         }
@@ -942,7 +847,6 @@ var Missile = (function (_super) {
 }(PhysicsState));
 // �萔
 Missile.MOMAX = 50; // ���̒����̍ő�l
-///<reference path="./Math/CVector3.ts" />
 ///<reference path="./Physics/PhysicsState.ts" />
 ///<reference path="Wing.ts" />
 ///<reference path="Bullet.ts" />
@@ -1035,32 +939,32 @@ var Plane = (function (_super) {
         //  �E��???
         this.wings[0].position.set(3, 0.1, 0);
         this.wings[0].unitX.set(Math.cos(wa), -Math.sin(wa), Math.sin(wa2));
-        this.wings[0].yVel.set(Math.sin(wa), Math.cos(wa), 0);
+        this.wings[0].unitY.set(Math.sin(wa), Math.cos(wa), 0);
         this.wings[0].zVel.set(0, 0, 1);
         // �@����???
         this.wings[1].position.set(-3, 0.1, 0);
         this.wings[1].unitX.set(Math.cos(wa), Math.sin(wa), -Math.sin(wa2));
-        this.wings[1].yVel.set(-Math.sin(wa), Math.cos(wa), 0);
+        this.wings[1].unitY.set(-Math.sin(wa), Math.cos(wa), 0);
         this.wings[1].zVel.set(0, 0, 1);
         // ��������
         this.wings[2].position.set(0, -10, 2);
         this.wings[2].unitX.set(1, 0, 0);
-        this.wings[2].yVel.set(0, 1, 0);
+        this.wings[2].unitY.set(0, 1, 0);
         this.wings[2].zVel.set(0, 0, 1);
         // ��������
         this.wings[3].position.set(0, -10, 0);
         this.wings[3].unitX.set(0, 0, 1);
-        this.wings[3].yVel.set(0, 1, 0);
+        this.wings[3].unitY.set(0, 1, 0);
         this.wings[3].zVel.set(1, 0, 0);
         // �E�G���W��
         this.wings[4].position.set(5, 0, 0);
         this.wings[4].unitX.set(1, 0, 0);
-        this.wings[4].yVel.set(0, 1, 0);
+        this.wings[4].unitY.set(0, 1, 0);
         this.wings[4].zVel.set(0, 0, 1);
         // ���G���W��
         this.wings[5].position.set(-5, 0, 0);
         this.wings[5].unitX.set(1, 0, 0);
-        this.wings[5].yVel.set(0, 1, 0);
+        this.wings[5].unitY.set(0, 1, 0);
         this.wings[5].zVel.set(0, 0, 1);
         // �e���̎��ʂ�Z�b�g
         this.wings[0].mass = 400 / 2;
@@ -1133,8 +1037,8 @@ var Plane = (function (_super) {
     };
     // �@�e��~�T�C���̃��b�N����
     Plane.prototype.lockCheck = function (world) {
-        var a = new CVector3();
-        var b = new CVector3();
+        var a = new THREE.Vector3();
+        var b = new THREE.Vector3();
         var nno = new Array(Plane.MMMAX); // �@��No.
         var dis = new Array(Plane.MMMAX); // �@�̂Ǝ��@�Ƃ̋���
         for (var m = 0; m < Plane.MMMAX; m++) {
@@ -1145,8 +1049,10 @@ var Plane = (function (_super) {
             // �ڕW�����݂��Ă���΃��b�N���X�g�ɒǉ�
             if (m !== this.no && world.plane[m].use) {
                 // �ڕW�Ƃ̋�������߂�
-                a.setMinus(this.position, world.plane[m].position);
-                var near_dis = a.abs2();
+                //a.setMinus(<any>this.position, <any>world.plane[m].position);
+                a.subVectors(this.position, world.plane[m].position);
+                //let near_dis = a.abs2();
+                var near_dis = a.lengthSq();
                 if (near_dis < 1e8) {
                     // �ڕW�Ƃ̈ʒu�֌W��@�̍��W�n�ɕϊ�
                     this.change_w2l(a, b);
@@ -1253,7 +1159,7 @@ var Plane = (function (_super) {
     // �@�̌v�Z
     Plane.prototype.moveCalc = function (world) {
         var ve;
-        var dm = new CVector3();
+        var dm = new THREE.Vector3();
         // ��ڕW�̌������̈ʒu����߂Ă����i�@�e�̒ǔ��ŗp����j
         this.targetSx = -1000;
         this.targetSy = 0;
@@ -1261,7 +1167,7 @@ var Plane = (function (_super) {
             // ��ڕW�̍��W��X�N���[�����W�ɕϊ�
             world.change3d(this, world.plane[this.gunTarget].position, dm);
             // �X�N���[����Ȃ�
-            if (dm.x > 0 && dm.x < world.width && dm.y > 0 && dm.y < world.height) {
+            if (dm.x > 0 && dm.x < world.getWidth() && dm.y > 0 && dm.y < world.getHeight()) {
                 this.targetSx = dm.x;
                 this.targetSy = dm.y;
             }
@@ -1422,10 +1328,11 @@ var Plane = (function (_super) {
         if (this.level < 0) {
             this.level = 0;
         }
-        var dm_p = new CVector3();
-        var dm_a = new CVector3();
+        var dm_p = new THREE.Vector3();
+        var dm_a = new THREE.Vector3();
         // �ڕW�Ǝ��@�̈ʒu�֌W����߁A�@�̍��W�ɕϊ����Ă���
-        dm_p.setMinus(this.position, world.plane[this.target].position);
+        //dm_p.setMinus(<any>this.position, <any>world.plane[this.target].position);
+        dm_p.subVectors(this.position, world.plane[this.target].position);
         this.change_w2l(dm_p, dm_a);
         // mm�́A�X�e�B�b�N�̈ړ����E��
         if (this.level >= 20) {
@@ -1512,13 +1419,13 @@ var Plane = (function (_super) {
     // �@�e�̒e�ۈړ��Ɣ��ˏ���
     Plane.prototype.moveBullet = function (world) {
         // let aa;
-        var sc = new CVector3();
-        var a = new CVector3();
-        var b = new CVector3();
-        var c = new CVector3();
-        var dm = new CVector3();
-        var oi = new CVector3();
-        var ni = new CVector3();
+        var sc = new THREE.Vector3();
+        var a = new THREE.Vector3();
+        var b = new THREE.Vector3();
+        var c = new THREE.Vector3();
+        var dm = new THREE.Vector3();
+        var oi = new THREE.Vector3();
+        var ni = new THREE.Vector3();
         // �e�ۂ̏������x����߂Ă���
         dm.set(this.gunX * 400 / 200, 400, this.gunY * 400 / 200);
         this.change_l2w(dm, oi);
@@ -1529,7 +1436,7 @@ var Plane = (function (_super) {
         this.change_l2w(dm, ni);
         // �e�ۂ̓��B�\�z���Ԃ���߂Ă���
         if (this.gunTarget >= 0)
-            this.gunTime = this.targetDis / (oi.abs() * 1.1);
+            this.gunTime = this.targetDis / (oi.length() * 1.1);
         if (this.gunTime > 1.0)
             this.gunTime = 1.0;
         // �e�ۂ̓����\�z�ʒu����߂�
@@ -1539,8 +1446,10 @@ var Plane = (function (_super) {
         world.change3d(this, this.gcVel, sc);
         // �@�e��ڕW�֌�����
         if (this.gunTarget >= 0) {
-            c.set(world.plane[this.gunTarget].position.x, world.plane[this.gunTarget].position.y, world.plane[this.gunTarget].position.z);
-            c.addCons(world.plane[this.gunTarget].velocity, this.gunTime);
+            //c.set(world.plane[this.gunTarget].position.x, world.plane[this.gunTarget].position.y, world.plane[this.gunTarget].position.z);
+            c.copy(world.plane[this.gunTarget].position);
+            //c.addCons(<any>world.plane[this.gunTarget].velocity, this.gunTime);
+            c.addScaledVector(world.plane[this.gunTarget].velocity, this.gunTime);
             world.change3d(this, c, a);
             world.change3d(this, world.plane[this.gunTarget].position, b);
             sc.x += b.x - a.x;
@@ -1604,9 +1513,9 @@ var Plane = (function (_super) {
     };
     // �~�T�C���ړ��Ɣ��ˏ���
     Plane.prototype.moveAam = function (world) {
-        var dm = new CVector3();
-        var ni = new CVector3();
-        var oi = new CVector3();
+        var dm = new THREE.Vector3();
+        var ni = new THREE.Vector3();
+        var oi = new THREE.Vector3();
         for (var k = 0; k < Plane.MMMAX; k++) {
             // �e�~�T�C���ړ�
             if (this.aam[k].use > 0) {
@@ -1703,7 +1612,8 @@ var Plane = (function (_super) {
                 dm.y = 50.0;
                 dm.z += (k / 4) * 5;
                 this.change_l2w(dm, oi);
-                var v = oi.abs();
+                //let v = oi.abs();
+                var v = oi.length();
                 // ap.forward.setConsInv(oi, v);
                 ap.forward.copy(oi);
                 ap.forward.divideScalar(v);
@@ -1766,7 +1676,7 @@ var Jflight = (function (_super) {
         for (var j = 0; j < Jflight.GSCALE; j++) {
             _this.pos.push([]);
             for (var i = 0; i < Jflight.GSCALE; i++) {
-                _this.pos[j].push(new CVector3());
+                _this.pos[j].push(new THREE.Vector3());
             }
         }
         _this.hud = new HUD(hudCanvas, _this.plane[0]);
@@ -1910,12 +1820,9 @@ var Jflight = (function (_super) {
     // �e�@�̂�\��
     // �e�ۂ�~�T�C��������ŕ\�����Ă���
     Jflight.prototype.writePlane = function (context) {
-        //let p0 = new CVector3();
-        //let p1 = new CVector3();
-        //let p2 = new CVector3();
-        var s0 = new CVector3();
-        var s1 = new CVector3();
-        var s2 = new CVector3();
+        var s0 = new THREE.Vector3();
+        var s1 = new THREE.Vector3();
+        var s2 = new THREE.Vector3();
         for (var i = 0; i < Jflight.PMAX; i++) {
             if (this.plane[i].use) {
                 this.writeGun(context, this.plane[i]);
@@ -1956,9 +1863,9 @@ var Jflight = (function (_super) {
     };
     // �@�e��\��
     Jflight.prototype.writeGun = function (context, aplane) {
-        var dm = new CVector3();
-        var dm2 = new CVector3();
-        var cp = new CVector3();
+        var dm = new THREE.Vector3();
+        var dm2 = new THREE.Vector3();
+        var cp = new THREE.Vector3();
         for (var j = 0; j < Plane.BMAX; j++) {
             var bp = aplane.bullets[j];
             // use�J�E���^��0���傫����̂̂ݕ\��
@@ -1995,8 +1902,8 @@ var Jflight = (function (_super) {
     };
     // �~�T�C���Ƃ��̉���\��
     Jflight.prototype.writeAam = function (context, aplane) {
-        var dm = new CVector3();
-        var cp = new CVector3();
+        var dm = new THREE.Vector3();
+        var cp = new THREE.Vector3();
         for (var j = 0; j < Plane.MMMAX; j++) {
             var ap = aplane.aam[j];
             // use�J�E���^��0���傫����̂̂ݕ\��
@@ -2032,7 +1939,7 @@ var Jflight = (function (_super) {
     Jflight.prototype.writeGround = function (context) {
         var mx, my;
         var i, j;
-        var p = new CVector3();
+        var p = new THREE.Vector3();
         // �n�ʃO���b�h�̑傫����v�Z
         var step = Jflight.FMAX * 2 / Jflight.GSCALE;
         // ���@�̃O���b�h�ʒu�ƃI�t�Z�b�g��v�Z
@@ -2188,7 +2095,7 @@ var Main;
     var mouseX;
     var mouseY;
     // var stats: Stats;
-    // var clock = new THREE.Clock();
+    var clock = new THREE.Clock();
     // custom global variables
     // var boomer: TextureAnimator; // animators
     // var man: Billboard;
@@ -2288,7 +2195,8 @@ var Main;
     }
     Main.animate = animate;
     function update() {
-        // var delta = clock.getDelta();
+        var delta = clock.getDelta();
+        Jflight.DT = delta;
         /* 2Dコンテキスト */
         //let context = canvas.getContext("2d");
         flight.run();
@@ -2300,17 +2208,20 @@ var Main;
         // controls.update();
         // stats.update();
         // man.quaternion(camera.quaternion);
-        var m = new THREE.Matrix4();
-        var elements = flight.plane[0].matrix.elements;
-        m.elements[0] = elements[0];
-        m.elements[4] = elements[2];
-        m.elements[8] = -elements[1];
-        m.elements[1] = elements[4];
-        m.elements[5] = elements[6];
-        m.elements[9] = -elements[5];
-        m.elements[2] = elements[8];
-        m.elements[6] = elements[10];
-        m.elements[10] = -elements[9];
+        // let m = new THREE.Matrix4();
+        // let elements = flight.plane[0].matrix.elements;
+        var m = flight.plane[0].matrix;
+        var a = new THREE.Matrix4();
+        a.copy(m);
+        a.transpose();
+        var xAxis = new THREE.Vector3();
+        var yAxis = new THREE.Vector3();
+        var zAxis = new THREE.Vector3();
+        a.extractBasis(xAxis, yAxis, zAxis);
+        m.makeBasis(xAxis, zAxis, yAxis.negate());
+        // m.elements[0] = elements[0]; m.elements[4] = elements[2]; m.elements[8] = -elements[1];
+        // m.elements[1] = elements[4]; m.elements[5] = elements[6]; m.elements[9] = -elements[5];
+        // m.elements[2] = elements[8]; m.elements[6] = elements[10]; m.elements[10] = -elements[9];
         camera.setRotationFromMatrix(m);
         camera.position.set(flight.camerapos.x, flight.camerapos.y, flight.camerapos.z);
         flight.plane[1].line.position.set(flight.plane[1].position.x, flight.plane[1].position.y, flight.plane[1].position.z);
@@ -2318,8 +2229,8 @@ var Main;
         flight.plane[3].line.position.set(flight.plane[3].position.x, flight.plane[3].position.y, flight.plane[3].position.z);
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        flight.width = window.innerWidth;
-        flight.height = window.innerHeight;
+        flight.setWidth(window.innerWidth);
+        flight.setHeight(window.innerHeight);
     }
     function render() {
         renderer.render(scene, camera);
@@ -2361,16 +2272,4 @@ var Vector3Helper;
     }
     Vector3Helper.cross = cross;
 })(Vector3Helper || (Vector3Helper = {}));
-var Vector2 = (function () {
-    function Vector2(x, y) {
-        if (x === void 0) { x = 0; }
-        if (y === void 0) { y = 0; }
-        this.x = x;
-        this.y = y;
-    }
-    Vector2.prototype.multiply = function (scalar) {
-        return new Vector2(this.x * scalar, this.y * scalar);
-    };
-    return Vector2;
-}());
 //# sourceMappingURL=jflight.js.map

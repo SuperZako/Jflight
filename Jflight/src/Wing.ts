@@ -16,7 +16,7 @@ class Wing extends PhysicsState {
 
     // 変数
     public unitX = new THREE.Vector3();   // 翼座標Ｘ単位ベクトル（機体座標）
-    public yVel = new THREE.Vector3();   // 翼座標Ｙ単位ベクトル（機体座標）
+    public unitY = new THREE.Vector3();   // 翼座標Ｙ単位ベクトル（機体座標）
     public zVel = new THREE.Vector3();   // 翼座標Ｚ単位ベクトル（機体座標）
     public mass: number;      // 翼の質量
     public sVal: number;      // 翼面積
@@ -36,7 +36,7 @@ class Wing extends PhysicsState {
     // 翼計算を行う
     // fVelに計算結果が求まる
     // veは空気密度、noは翼No.（迎角計算に使用）、boostはエンジンブースト
-    public calc(plane: Plane, ve: number, no: number, boost: boolean) {
+    public calc(plane: Plane, ve: number, no: number, boost: boolean): void {
         let cd, ff;
 
         // 機体の速度と回転率、翼の位置から翼における速度を求める（外積計算）
@@ -44,6 +44,8 @@ class Wing extends PhysicsState {
         // vp.x = plane.localVelocity.x + this.position.y * plane.vaVel.z - this.position.z * plane.vaVel.y;
         // vp.y = plane.localVelocity.y + this.position.z * plane.vaVel.x - this.position.x * plane.vaVel.z;
         // vp.z = plane.localVelocity.z + this.position.x * plane.vaVel.y - this.position.y * plane.vaVel.x;
+
+        // vp = plane.localVelocity + this.position.x × plane.vaVel;
         vp.crossVectors(this.position, plane.vaVel);
         vp.add(plane.localVelocity);
 
@@ -56,12 +58,13 @@ class Wing extends PhysicsState {
         // qx.x = this.unitX.x * cos - this.zVel.x * sin;
         // qx.y = this.unitX.y * cos - this.zVel.y * sin;
         // qx.z = this.unitX.z * cos - this.zVel.z * sin;
+        // qx = this.unitX * cos - this.zVel * sin;
         qx.addScaledVector(this.unitX, cos);
         qx.addScaledVector(this.zVel, -sin);
 
         let qy = new THREE.Vector3();
         //this.m_qy.set(this.yVel.x, this.yVel.y, this.yVel.z);
-        qy.copy(this.yVel);
+        qy.copy(this.unitY);
 
         let qz = new THREE.Vector3();
         qz.x = this.unitX.x * sin + this.zVel.x * cos;

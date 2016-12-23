@@ -27,10 +27,12 @@
     "outFile": "built/jflight.js",
     "emitBOM": true
   },
+
   "include": [
     "src/**/*.ts",
     "test/**/*.ts"
   ],
+
   "exclude": [
     "node_modules",
     "wwwroot"

@@ -6,12 +6,12 @@
 //
 
 class Applet3D {
-    width: number;
-    height: number;        // スクリーンの大きさ
+    protected width: number;
+    protected height: number;        // スクリーンの大きさ
     protected sCenterX: number;
-    sCenterY: number;     // スクリーンのセンター座標
+    protected sCenterY: number;     // スクリーンのセンター座標
 
-    public camerapos: CVector3;         // カメラの位置
+    public camerapos: THREE.Vector3;         // カメラの位置
 
     bWidth: number; bHeight: number;                  // バックバッファの大きさ、リサイズ時にスクリーンの大きさにあわせる
 
@@ -26,7 +26,7 @@ class Applet3D {
     // コンストラクタ
 
     public constructor() {
-        this.camerapos = new CVector3();
+        this.camerapos = new THREE.Vector3();
         this.width = 600;
         this.height = 400;
         this.sCenterX = 300;
@@ -37,6 +37,24 @@ class Applet3D {
             // e.printStackTrace();
         }
         this.bgInit();
+    }
+
+    public setWidth(width: number) {
+        this.width = width;
+        this.sCenterX = width / 2;
+    }
+
+    public getWidth() {
+        return this.width;
+    }
+
+    public setHeight(heihgt: number) {
+        this.height = heihgt;
+        this.sCenterY = heihgt / 2;
+    }
+
+    public getHeight() {
+        return this.height;
     }
 
     // バックバッファの初期化
@@ -54,7 +72,7 @@ class Applet3D {
     // ３Ｄ（sp）→２Ｄ（cp）変換
     // 変換にはPlaneオブジェクトの変換行列を用いている
 
-    change3d(plane: Plane, sp: CVector3, cp: CVector3) {
+    change3d(plane: Plane, sp: THREE.Vector3, cp: THREE.Vector3) {
 
         // 視点座標に平行移動後、変換行列を掛ける
 
@@ -82,7 +100,7 @@ class Applet3D {
 
     // 地面と機体表示用のライン表示
 
-    public drawSline(context: CanvasRenderingContext2D, p0: CVector3, p1: CVector3) {
+    public drawSline(context: CanvasRenderingContext2D, p0: THREE.Vector3, p1: THREE.Vector3) {
         if (p0.x > -10000 && p0.x < 30000 && p0.y > -10000 && p0.y < 30000 &&
             p1.x > -10000 && p1.x < 30000 && p1.y > -10000 && p1.y < 30000) {
             context.strokeStyle = "white";
@@ -95,7 +113,7 @@ class Applet3D {
 
     // 弾丸表示用のライン表示
 
-    public drawBlined(context: CanvasRenderingContext2D, p0: CVector3, p1: CVector3) {
+    public drawBlined(context: CanvasRenderingContext2D, p0: THREE.Vector3, p1: THREE.Vector3) {
         if (p0.x > -1000 && p1.x > -1000) {
             // bGraphics.setColor(Color.yellow);
             context.strokeStyle = "yellow";
@@ -109,7 +127,7 @@ class Applet3D {
 
     // 弾丸表示用の太いライン表示
 
-    public drawBline(context: CanvasRenderingContext2D, p0: CVector3, p1: CVector3) {
+    public drawBline(context: CanvasRenderingContext2D, p0: THREE.Vector3, p1: THREE.Vector3) {
         if (p0.x > -1000 && p1.x > -1000) {
             //bGraphics.setColor(Color.yellow);
             context.strokeStyle = "yellow";
@@ -128,7 +146,7 @@ class Applet3D {
 
     // ミサイル煙用のライン表示
 
-    public drawMline(context: CanvasRenderingContext2D, p0: CVector3, p1: CVector3) {
+    public drawMline(context: CanvasRenderingContext2D, p0: THREE.Vector3, p1: THREE.Vector3) {
         if (p0.x > -1000 && p1.x > -1000) {
             // bGraphics.setColor(Color.lightGray);
             context.strokeStyle = "lightgrey";
@@ -143,7 +161,7 @@ class Applet3D {
 
     // ミサイル用のライン表示
 
-    public drawAline(p0: CVector3, p1: CVector3) {
+    public drawAline(p0: THREE.Vector3, p1: THREE.Vector3) {
         if (p0.x > -1000 && p1.x > -1000) {
             //bGraphics.setColor(Color.white);
             //bGraphics.drawLine(p0.x, (int)p0.y, (int)p1.x, (int)p1.y);
@@ -155,7 +173,7 @@ class Applet3D {
 
     // ポリゴン表示
 
-    public drawPoly(context: CanvasRenderingContext2D, p0: CVector3, p1: CVector3, p2: CVector3) {
+    public drawPoly(context: CanvasRenderingContext2D, p0: THREE.Vector3, p1: THREE.Vector3, p2: THREE.Vector3) {
         this.drawSline(context, p0, p1);
         this.drawSline(context, p1, p2);
         this.drawSline(context, p2, p0);
@@ -163,7 +181,7 @@ class Applet3D {
 
     // 爆発用の円表示
 
-    public fillBarc(p: CVector3) {
+    public fillBarc(p: THREE.Vector3) {
         if (p.x >= -100) {
             // Ｚ座標値で半径を変える
 

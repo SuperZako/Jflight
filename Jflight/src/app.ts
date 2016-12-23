@@ -5,7 +5,6 @@
 ///<reference path="HUD.ts" />
 
 // main
-
 // グローバル変数
 var keyboard = new THREEx.KeyboardState();
 
@@ -28,14 +27,14 @@ namespace Main {
     var mouseY: number;
 
     // var stats: Stats;
-    // var clock = new THREE.Clock();
+    var clock = new THREE.Clock();
     // custom global variables
     // var boomer: TextureAnimator; // animators
     // var man: Billboard;
     // var controls: THREE.OrbitControls;
 
     // functions
-    export function init() {
+    export function init(): void {
         canvas = <HTMLCanvasElement>document.getElementById("canvas");
         canvas.onmousemove = onMouseMove;
         // scene
@@ -173,8 +172,9 @@ namespace Main {
 
     function update() {
 
-        // var delta = clock.getDelta();
-
+        var delta = clock.getDelta();
+        delta = 0;
+        // Jflight.DT = delta;
         /* 2Dコンテキスト */
 
         //let context = canvas.getContext("2d");
@@ -191,11 +191,23 @@ namespace Main {
         // man.quaternion(camera.quaternion);
 
 
-        let m = new THREE.Matrix4();
-        let elements = flight.plane[0].matrix.elements;
-        m.elements[0] = elements[0]; m.elements[4] = elements[2]; m.elements[8] = -elements[1];
-        m.elements[1] = elements[4]; m.elements[5] = elements[6]; m.elements[9] = -elements[5];
-        m.elements[2] = elements[8]; m.elements[6] = elements[10]; m.elements[10] = -elements[9];
+        // let m = new THREE.Matrix4();
+        // let elements = flight.plane[0].matrix.elements;
+
+        let m = flight.plane[0].matrix;
+        let a = new THREE.Matrix4();
+        a.copy(m);
+        a.transpose();
+        let xAxis = new THREE.Vector3();
+        let yAxis = new THREE.Vector3();
+        let zAxis = new THREE.Vector3();
+        a.extractBasis(xAxis, yAxis, zAxis);
+
+        m.makeBasis(xAxis, zAxis, yAxis.negate());
+        // m.elements[0] = elements[0]; m.elements[4] = elements[2]; m.elements[8] = -elements[1];
+        // m.elements[1] = elements[4]; m.elements[5] = elements[6]; m.elements[9] = -elements[5];
+        // m.elements[2] = elements[8]; m.elements[6] = elements[10]; m.elements[10] = -elements[9];
+
 
         camera.setRotationFromMatrix(m);
         camera.position.set(flight.camerapos.x, flight.camerapos.y, flight.camerapos.z);
@@ -208,8 +220,8 @@ namespace Main {
 
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        flight.width = window.innerWidth;
-        flight.height = window.innerHeight;
+        flight.setWidth(window.innerWidth);
+        flight.setHeight(window.innerHeight);
     }
 
     function render() {

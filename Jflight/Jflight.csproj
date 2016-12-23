@@ -761,11 +761,9 @@
     <TypeScriptCompile Include="src\Applet3D.ts" />
     <TypeScriptCompile Include="src\Bullet.ts" />
     <TypeScriptCompile Include="src\Helpers\MathHelper.ts" />
-    <TypeScriptCompile Include="src\Math\CVector3.ts" />
     <TypeScriptCompile Include="src\Helpers\Vector3Helper.ts" />
     <TypeScriptCompile Include="src\HUD.ts" />
     <TypeScriptCompile Include="src\Jflight.ts" />
-    <TypeScriptCompile Include="src\Math\Vector2.ts" />
     <TypeScriptCompile Include="src\Missile.ts" />
     <TypeScriptCompile Include="src\Physics\PhysicsState.ts" />
     <TypeScriptCompile Include="src\Plane.ts" />
@@ -779,6 +777,9 @@
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\Math\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

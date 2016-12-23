@@ -1,4 +1,3 @@
-///<reference path="./Math/CVector3.ts" />
 ///<reference path="./Physics/PhysicsState.ts" />
 ///<reference path="Wing.ts" />
 ///<reference path="Bullet.ts" />
@@ -174,37 +173,37 @@ class Plane extends PhysicsState {
         //  右翼???
         this.wings[0].position.set(3, 0.1, 0);
         this.wings[0].unitX.set(Math.cos(wa), -Math.sin(wa), Math.sin(wa2));
-        this.wings[0].yVel.set(Math.sin(wa), Math.cos(wa), 0);
+        this.wings[0].unitY.set(Math.sin(wa), Math.cos(wa), 0);
         this.wings[0].zVel.set(0, 0, 1);
 
         // 　左翼???
         this.wings[1].position.set(-3, 0.1, 0);
         this.wings[1].unitX.set(Math.cos(wa), Math.sin(wa), -Math.sin(wa2));
-        this.wings[1].yVel.set(-Math.sin(wa), Math.cos(wa), 0);
+        this.wings[1].unitY.set(-Math.sin(wa), Math.cos(wa), 0);
         this.wings[1].zVel.set(0, 0, 1);
 
         // 水平尾翼
         this.wings[2].position.set(0, -10, 2);
         this.wings[2].unitX.set(1, 0, 0);
-        this.wings[2].yVel.set(0, 1, 0);
+        this.wings[2].unitY.set(0, 1, 0);
         this.wings[2].zVel.set(0, 0, 1);
 
         // 垂直尾翼
         this.wings[3].position.set(0, -10, 0);
         this.wings[3].unitX.set(0, 0, 1);
-        this.wings[3].yVel.set(0, 1, 0);
+        this.wings[3].unitY.set(0, 1, 0);
         this.wings[3].zVel.set(1, 0, 0);
 
         // 右エンジン
         this.wings[4].position.set(5, 0, 0);
         this.wings[4].unitX.set(1, 0, 0);
-        this.wings[4].yVel.set(0, 1, 0);
+        this.wings[4].unitY.set(0, 1, 0);
         this.wings[4].zVel.set(0, 0, 1);
 
         // 左エンジン
         this.wings[5].position.set(-5, 0, 0);
         this.wings[5].unitX.set(1, 0, 0);
-        this.wings[5].yVel.set(0, 1, 0);
+        this.wings[5].unitY.set(0, 1, 0);
         this.wings[5].zVel.set(0, 0, 1);
 
         // 各翼の質量をセット
@@ -277,7 +276,7 @@ class Plane extends PhysicsState {
 
     // ワールド座標を機体座標へ変換する（１次変換のみ）
 
-    public change_w2l(pw: CVector3, pl: CVector3) {
+    public change_w2l(pw: THREE.Vector3, pl: THREE.Vector3) {
 
         pl.x = pw.x * this.matrix.elements[0] + pw.y * this.matrix.elements[4] + pw.z * this.matrix.elements[8];
         pl.y = pw.x * this.matrix.elements[1] + pw.y * this.matrix.elements[5] + pw.z * this.matrix.elements[9];
@@ -286,7 +285,7 @@ class Plane extends PhysicsState {
 
     // 機体座標をワールド座標へ変換する（１次変換のみ）
 
-    public change_l2w(pl: CVector3, pw: CVector3) {
+    public change_l2w(pl: THREE.Vector3, pw: THREE.Vector3) {
 
         pw.x = pl.x * this.matrix.elements[0] + pl.y * this.matrix.elements[1] + pl.z * this.matrix.elements[2];
         pw.y = pl.x * this.matrix.elements[4] + pl.y * this.matrix.elements[5] + pl.z * this.matrix.elements[6];
@@ -297,8 +296,8 @@ class Plane extends PhysicsState {
     // 機銃やミサイルのロック処理
 
     public lockCheck(world: Jflight) {
-        let a = new CVector3();
-        let b = new CVector3();
+        let a = new THREE.Vector3();
+        let b = new THREE.Vector3();
         let nno = new Array<number>(Plane.MMMAX);       // 機体No.
         let dis = new Array<number>(Plane.MMMAX); // 機体と自機との距離
 
@@ -313,8 +312,10 @@ class Plane extends PhysicsState {
             if (m !== this.no && world.plane[m].use) {
 
                 // 目標との距離を求める
-                a.setMinus(<any>this.position, <any>world.plane[m].position);
-                let near_dis = a.abs2();
+                //a.setMinus(<any>this.position, <any>world.plane[m].position);
+                a.subVectors(this.position, world.plane[m].position);
+                //let near_dis = a.abs2();
+                let near_dis = a.lengthSq();
 
                 if (near_dis < 1e8) {
 
@@ -455,7 +456,7 @@ class Plane extends PhysicsState {
 
     public moveCalc(world: Jflight) {
         let ve;
-        let dm = new CVector3();
+        let dm = new THREE.Vector3();
 
         // 主目標の見かけの位置を求めておく（機銃の追尾で用いる）
 
@@ -464,10 +465,10 @@ class Plane extends PhysicsState {
         if (this.gunTarget >= 0 && world.plane[this.gunTarget].use) {
 
             // 主目標の座標をスクリーン座標に変換
-            world.change3d(this, <any>world.plane[this.gunTarget].position, dm);
+            world.change3d(this, world.plane[this.gunTarget].position, dm);
 
             // スクリーン内なら
-            if (dm.x > 0 && dm.x < world.width && dm.y > 0 && dm.y < world.height) {
+            if (dm.x > 0 && dm.x < world.getWidth() && dm.y > 0 && dm.y < world.getHeight()) {
                 this.targetSx = dm.x;
                 this.targetSy = dm.y;
             }
@@ -672,11 +673,12 @@ class Plane extends PhysicsState {
             this.level = 0;
         }
 
-        let dm_p = new CVector3();
-        let dm_a = new CVector3();
+        let dm_p = new THREE.Vector3();
+        let dm_a = new THREE.Vector3();
 
         // 目標と自機の位置関係を求め、機体座標に変換しておく
-        dm_p.setMinus(<any>this.position, <any>world.plane[this.target].position);
+        //dm_p.setMinus(<any>this.position, <any>world.plane[this.target].position);
+        dm_p.subVectors(this.position, world.plane[this.target].position);
         this.change_w2l(dm_p, dm_a);
 
         // mmは、スティックの移動限界量
@@ -780,13 +782,13 @@ class Plane extends PhysicsState {
     public moveBullet(world: Jflight) {
         // let aa;
 
-        let sc = new CVector3();
-        let a = new CVector3();
-        let b = new CVector3();
-        let c = new CVector3();
-        let dm = new CVector3();
-        let oi = new CVector3();
-        let ni = new CVector3();
+        let sc = new THREE.Vector3();
+        let a = new THREE.Vector3();
+        let b = new THREE.Vector3();
+        let c = new THREE.Vector3();
+        let dm = new THREE.Vector3();
+        let oi = new THREE.Vector3();
+        let ni = new THREE.Vector3();
 
         // 弾丸の初期速度を求めておく
         dm.set(this.gunX * 400 / 200, 400, this.gunY * 400 / 200);
@@ -800,7 +802,7 @@ class Plane extends PhysicsState {
 
         // 弾丸の到達予想時間を求めておく
         if (this.gunTarget >= 0)
-            this.gunTime = this.targetDis / (oi.abs() * 1.1);
+            this.gunTime = this.targetDis / (/*oi.abs()*/oi.length() * 1.1);
         if (this.gunTime > 1.0)
             this.gunTime = 1.0;
 
@@ -813,10 +815,12 @@ class Plane extends PhysicsState {
 
         // 機銃を目標へ向ける
         if (this.gunTarget >= 0) {
-            c.set(world.plane[this.gunTarget].position.x, world.plane[this.gunTarget].position.y, world.plane[this.gunTarget].position.z);
-            c.addCons(<any>world.plane[this.gunTarget].velocity, this.gunTime);
+            //c.set(world.plane[this.gunTarget].position.x, world.plane[this.gunTarget].position.y, world.plane[this.gunTarget].position.z);
+            c.copy(world.plane[this.gunTarget].position);
+            //c.addCons(<any>world.plane[this.gunTarget].velocity, this.gunTime);
+            c.addScaledVector(world.plane[this.gunTarget].velocity, this.gunTime);
             world.change3d(this, c, a);
-            world.change3d(this, <any>world.plane[this.gunTarget].position, b);
+            world.change3d(this, world.plane[this.gunTarget].position, b);
             sc.x += b.x - a.x;
             sc.y += b.y - a.y;
         }
@@ -886,9 +890,9 @@ class Plane extends PhysicsState {
     // ミサイル移動と発射処理
 
     public moveAam(world: Jflight) {
-        let dm = new CVector3();
-        let ni = new CVector3();
-        let oi = new CVector3();
+        let dm = new THREE.Vector3();
+        let ni = new THREE.Vector3();
+        let oi = new THREE.Vector3();
 
         for (let k = 0; k < Plane.MMMAX; k++) {
 
@@ -965,7 +969,8 @@ class Plane extends PhysicsState {
                 dm.y = 50.0;
                 dm.z += (k / 4) * 5;
                 this.change_l2w(dm, oi);
-                let v = oi.abs();
+                //let v = oi.abs();
+                let v = oi.length();
                 // ap.forward.setConsInv(oi, v);
                 ap.forward.copy(<any>oi);
                 ap.forward.divideScalar(v);

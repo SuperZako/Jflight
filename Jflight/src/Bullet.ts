@@ -1,5 +1,3 @@
-///<reference path="./Math/CVector3.ts" />
-
 //
 // bullet
 // ’eŠÛƒNƒ‰ƒX

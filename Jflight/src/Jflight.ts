@@ -43,7 +43,7 @@ class Jflight extends Applet3D {
 
     // テンポラリオブジェクト
 
-    protected pos: CVector3[][] = [];                   // 地面表示の際のデータを蓄えておくためのTmp
+    protected pos: THREE.Vector3[][] = [];                   // 地面表示の際のデータを蓄えておくためのTmp
 
     private hud: HUD;
 
@@ -70,7 +70,7 @@ class Jflight extends Applet3D {
         for (let j = 0; j < Jflight.GSCALE; j++) {
             this.pos.push([]);
             for (let i = 0; i < Jflight.GSCALE; i++) {
-                this.pos[j].push(new CVector3());
+                this.pos[j].push(new THREE.Vector3());
             }
         }
 
@@ -256,12 +256,9 @@ class Jflight extends Applet3D {
     // 弾丸やミサイルもここで表示している
 
     writePlane(context: CanvasRenderingContext2D) {
-        //let p0 = new CVector3();
-        //let p1 = new CVector3();
-        //let p2 = new CVector3();
-        let s0 = new CVector3();
-        let s1 = new CVector3();
-        let s2 = new CVector3();
+        let s0 = new THREE.Vector3();
+        let s1 = new THREE.Vector3();
+        let s2 = new THREE.Vector3();
 
         for (let i = 0; i < Jflight.PMAX; i++) {
             if (this.plane[i].use) {
@@ -299,9 +296,9 @@ class Jflight extends Applet3D {
                         p2.add(this.plane[i].position);
 
                         // ワールド座標を、スクリーン座標に変換
-                        this.change3d(this.plane[0], <any>p0, s0);
-                        this.change3d(this.plane[0], <any>p1, s1);
-                        this.change3d(this.plane[0], <any>p2, s2);
+                        this.change3d(this.plane[0], p0, s0);
+                        this.change3d(this.plane[0], p1, s1);
+                        this.change3d(this.plane[0], p2, s2);
 
                         // 三角形表示
                         this.drawPoly(context, s0, s1, s2);
@@ -314,9 +311,9 @@ class Jflight extends Applet3D {
     // 機銃を表示
 
     protected writeGun(context: CanvasRenderingContext2D, aplane: Plane) {
-        let dm = new CVector3();
-        let dm2 = new CVector3();
-        let cp = new CVector3();
+        let dm = new THREE.Vector3();
+        let dm2 = new THREE.Vector3();
+        let cp = new THREE.Vector3();
 
         for (let j = 0; j < Plane.BMAX; j++) {
             let bp = aplane.bullets[j];
@@ -362,8 +359,8 @@ class Jflight extends Applet3D {
     // ミサイルとその煙を表示
 
     protected writeAam(context: CanvasRenderingContext2D, aplane: Plane) {
-        let dm = new CVector3();
-        let cp = new CVector3();
+        let dm = new THREE.Vector3();
+        let cp = new THREE.Vector3();
         for (let j = 0; j < Plane.MMMAX; j++) {
             let ap = aplane.aam[j];
 
@@ -406,7 +403,7 @@ class Jflight extends Applet3D {
 
         let mx, my;
         let i: number, j: number;
-        let p = new CVector3();
+        let p = new THREE.Vector3();
 
         // 地面グリッドの大きさを計算
 
@@ -454,7 +451,7 @@ class Jflight extends Applet3D {
 
     // 地面の傾きを計算
 
-    public gGrad(_px: number, _py: number, p: CVector3) {
+    public gGrad(_px: number, _py: number, p: THREE.Vector3) {
         p.x = 0;
         p.y = 0;
     }

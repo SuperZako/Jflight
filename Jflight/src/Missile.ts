@@ -30,7 +30,7 @@ class Missile extends PhysicsState {
         // this.m_a0 = new CVector3();
 
         let geometries: THREE.SphereGeometry[] = [];
-        for (let i = 0; i < Missile.MOMAX; ++i) {
+        for (let i: number = 0; i < Missile.MOMAX; ++i) {
             geometries.push(new THREE.SphereGeometry(5, 8, 8));
         }
 
@@ -86,7 +86,7 @@ class Missile extends PhysicsState {
             // 追尾目標との速度差を求める
             // this.m_a0.setMinus(<any>tp.velocity, <any>this.velocity);
             a0.subVectors(tp.velocity, this.velocity);
-            //let m = this.m_a0.abs();
+            // let m = this.m_a0.abs();
             let m = a0.length();
 
             // 衝突予想時間を修正ありで求める
@@ -243,9 +243,9 @@ class Missile extends PhysicsState {
         // ミサイルが爆発中の場合、爆円表示
         this.explosion.visible = false;
         if (this.bom > 0) {
-            //this.explosion.position.x = this.position.x;
-            //this.explosion.position.y = this.position.y;
-            //this.explosion.position.z = this.position.z;
+            // this.explosion.position.x = this.position.x;
+            // this.explosion.position.y = this.position.y;
+            // this.explosion.position.z = this.position.z;
 
             this.explosion.position.copy(this.position);
             this.explosion.visible = true;
