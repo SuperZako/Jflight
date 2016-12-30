@@ -74,7 +74,6 @@ class Wing extends PhysicsState {
         sin = Math.sin(this.aAngle);
         cos = Math.cos(this.aAngle);
 
-
         // this.m_wx.set(this.m_qx.x, this.m_qx.y, this.m_qx.z);
         let wx = new THREE.Vector3();
         wx.copy(qx);

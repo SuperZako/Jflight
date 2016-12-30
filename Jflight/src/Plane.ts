@@ -546,10 +546,6 @@ class Plane extends PhysicsState {
             am.sub(v);
         }
 
-
-        if (am.y > 100000) {
-            console.log("!!!")
-        }
         // Šp“x•Ï‰»‚ğÏ•ª
 
         this.vaVel.x += am.x / this.iMass.x * Jflight.DT;
@@ -600,11 +596,6 @@ class Plane extends PhysicsState {
         // ‹@‘Ì‚Å”­¶‚·‚é’ïR‚ğ‹[—“I‚É¶¬
 
         let _v = new THREE.Vector3();//new CVector3()
-        // _v.set(this.velocity.x, this.velocity.y, this.velocity.z);
-        // let len = _v.abs();
-        // _v.x /= len;
-        // _v.y /= len;
-        // _v.z /= len;
         _v.copy(this.velocity);
         _v.normalize();
 
@@ -651,6 +642,10 @@ class Plane extends PhysicsState {
         if (this.height < 5 && (Math.abs(this.velocity.z) > 50 || Math.abs(this.rotation.y) > 20 * Math.PI / 180 || this.rotation.x > 10 * Math.PI / 180)) {
             this.posInit();
         }
+
+
+        //
+        this.line.setRotationFromMatrix(this.matrix);
     }
 
     // ©“®‘€c

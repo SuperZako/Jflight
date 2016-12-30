@@ -1230,9 +1230,6 @@ var Plane = (function (_super) {
             v.crossVectors(wing.position, wing.fVel);
             am.sub(v);
         }
-        if (am.y > 100000) {
-            console.log("!!!");
-        }
         // �p�x�ω���ϕ�
         this.vaVel.x += am.x / this.iMass.x * Jflight.DT;
         this.vaVel.y += am.y / this.iMass.y * Jflight.DT;
@@ -1272,11 +1269,6 @@ var Plane = (function (_super) {
         this.gVel.multiplyScalar(1 / this.mass);
         // �@�̂Ŕ��������R��[���I�ɐ���
         var _v = new THREE.Vector3(); //new CVector3()
-        // _v.set(this.velocity.x, this.velocity.y, this.velocity.z);
-        // let len = _v.abs();
-        // _v.x /= len;
-        // _v.y /= len;
-        // _v.z /= len;
         _v.copy(this.velocity);
         _v.normalize();
         this.velocity.x -= this.velocity.x * this.velocity.x * 0.00002 * _v.x;
@@ -1313,6 +1305,8 @@ var Plane = (function (_super) {
         if (this.height < 5 && (Math.abs(this.velocity.z) > 50 || Math.abs(this.rotation.y) > 20 * Math.PI / 180 || this.rotation.x > 10 * Math.PI / 180)) {
             this.posInit();
         }
+        //
+        this.line.setRotationFromMatrix(this.matrix);
     };
     // �������c
     Plane.prototype.autoFlight = function (world) {
@@ -2196,7 +2190,8 @@ var Main;
     Main.animate = animate;
     function update() {
         var delta = clock.getDelta();
-        Jflight.DT = delta;
+        delta = 0;
+        // Jflight.DT = delta;
         /* 2Dコンテキスト */
         //let context = canvas.getContext("2d");
         flight.run();
